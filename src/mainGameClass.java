@@ -1,6 +1,8 @@
 import acm.graphics.GLabel;
 import acm.graphics.GRect;
+import acm.graphics.GRectangle;
 import acm.program.*;
+import acm.util.RandomGenerator;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -23,6 +25,7 @@ public class mainGameClass extends GraphicsProgram {
 
 
         startScreen();
+
 
     }
 
@@ -64,6 +67,7 @@ public class mainGameClass extends GraphicsProgram {
         rulesScreen = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
         rulesText = new GLabel("Should write some rules");
 
+        rulesScreen.setFilled(true);
         /*
         Треба написати правила та відформатувати їх
          */
@@ -72,11 +76,67 @@ public class mainGameClass extends GraphicsProgram {
         add(rulesText);
     }
 
-    public void MouseClicked(MouseEvent e){
-        if(e.getButton() == 1){
+    public void mouseClicked(MouseEvent e){
+
+        /*
+        перевірка, чи натискає користувач на кнопки на мейн меню скріні
+         */
+
+        if(buttonRules.contains(e.getX(), e.getY())){
             rulesScreen();
         }
+        else if(buttonLevel1.contains(e.getX(), e.getY())){
+            level1();
+        }
+//        if(buttonLevel2.contains(e.getX(), e.getY())){
+//            level2();
+//        }
+//        if(buttonLevel3.contains(e.getX(), e.getY())){
+//            level3();
+//        }
     }
+
+    private void level1(){
+        remove(buttonLevel1);
+        remove(buttonLevel2);
+        remove(buttonLevel3);
+        remove(buttonRules);
+
+
+        level1Screen = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
+        level1Screen.setFillColor(Color.white);
+        level1Screen.setFilled(true);
+
+
+        GRect rect = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT/10);
+        rect.setFilled(true);
+
+        paddle();
+
+
+
+        add(level1Screen);
+        add(rect);
+
+//        while (!gameEnded){
+//            paddleMovement();
+//        }
+    }
+
+    private void paddle(){
+        GRect paddle = new GRect((double) (WINDOW_WIDTH - WINDOW_WIDTH / 10) /2,WINDOW_HEIGHT - (double) WINDOW_HEIGHT /20, (double) WINDOW_WIDTH /10, (double) WINDOW_HEIGHT /20);
+        paddle.setFilled(true);
+        add(paddle);
+    }
+
+    private void paddleMovement(){
+
+    }
+
+    RandomGenerator rnd = new RandomGenerator();
+
+    private GRect settingsScreen;
+
 
     private GRect startScreenCanvas;
 
@@ -92,6 +152,10 @@ public class mainGameClass extends GraphicsProgram {
     private GRect rulesScreen;
     private GLabel rulesText;
 
+    private GRect level1Screen;
+    private GRect level2Screen;
+    private GRect level3Screen;
 
+    private boolean gameEnded;
 
 }
