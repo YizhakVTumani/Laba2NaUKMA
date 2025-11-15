@@ -23,7 +23,9 @@ public class mainGameClass extends GraphicsProgram {
     private static final int BRICKS_PER_ROW = 10;
     private static final int BRICK_ROWS = 10;
     private static final int BRICK_GAP = 4;
-
+    private static final int BRICK_WIDTH = (WINDOW_WIDTH - (BRICKS_PER_ROW - 1) * BRICK_GAP) / BRICKS_PER_ROW;
+    private static final int BRICK_HEIGHT = 8;
+    private static final int DISTANCE_TO_FIRST_BRICK = 100;
 
 
     public void run(){
@@ -35,7 +37,38 @@ public class mainGameClass extends GraphicsProgram {
 
         startScreen();
 
+    }
 
+    private void drawBricks() {
+        double startX = getX();
+        double startY = getY() + DISTANCE_TO_FIRST_BRICK;
+        double x;
+        double y;
+        for (int i = 0; i < BRICK_ROWS; i++) {
+            for (int j = 0; j < BRICKS_PER_ROW; j++) {
+                x = startX + j * (BRICK_GAP + BRICK_WIDTH);
+                y = startY  + i * (BRICK_GAP + BRICK_HEIGHT);
+                GRect brick = new GRect(x, y, BRICK_WIDTH, BRICK_HEIGHT);
+                brick.setFilled(true);
+                if ((i + 1) <= 2) {
+                    brick.setColor(Color.red);
+                    brick.setFillColor(Color.red);
+                } else if ((i + 1) > 2 && (i + 1) <= 4) {
+                    brick.setColor(Color.ORANGE);
+                    brick.setFillColor(Color.ORANGE);
+                } else if ((i + 1) > 4 && (i + 1) <= 6) {
+                    brick.setColor(Color.YELLOW);
+                    brick.setFillColor(Color.YELLOW);
+                } else if (((i + 1) > 6 && (i + 1) <= 8)) {
+                    brick.setColor(Color.GREEN);
+                    brick.setFillColor(Color.GREEN);
+                } else if ((i + 1) > 8 && (i + 1) <= 10) {
+                    brick.setColor(Color.CYAN);
+                    brick.setFillColor(Color.CYAN);
+                }
+                add(brick);
+            }
+        }
     }
 
     public void startScreen(){
@@ -126,12 +159,9 @@ public class mainGameClass extends GraphicsProgram {
         level1Screen.setFilled(true);
 
 
-        GRect rect = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT/10);
-        rect.setFilled(true);
-
 
         add(level1Screen);
-        add(rect);
+        drawBricks();
         paddle();
         ball();
 
@@ -158,12 +188,12 @@ public class mainGameClass extends GraphicsProgram {
 
 
     private void paddleMovementRight(){
-        if(paddleBox != null){
+        if(paddleBox != null && paddleBox.getX() + paddleBox.getWidth() < WINDOW_WIDTH){
             paddleBox.move(PADDLE_SPEED, 0);
         }
     }
     private void paddleMovementLeft(){
-        if(paddleBox != null){
+        if(paddleBox != null && paddleBox.getX() > 0){
             paddleBox.move(-PADDLE_SPEED, 0);
         }
     }
@@ -195,4 +225,7 @@ public class mainGameClass extends GraphicsProgram {
 
     private boolean gameEnded;
 
+    public static void main(String[] args) {
+        new mainGameClass().start(args);
+    }
 }
