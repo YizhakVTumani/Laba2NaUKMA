@@ -20,6 +20,11 @@ public class mainGameClass extends GraphicsProgram {
     private static final int PADDLE_SPEED = 2;
     private static final int BALL_DIAMETER = 20;
 
+    private static final int BRICKS_PER_ROW = 10;
+    private static final int BRICK_ROWS = 10;
+    private static final int BRICK_GAP = 4;
+
+
 
     public void run(){
         this.setSize(WINDOW_WIDTH + 17, WINDOW_HEIGHT + 60); // на вінді бордери такі, можеш міняти під мак, але запиши це в коментах: Windows(+17; +60)
