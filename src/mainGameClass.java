@@ -1,10 +1,11 @@
 import acm.graphics.GLabel;
+import acm.graphics.GOval;
 import acm.graphics.GRect;
-import acm.graphics.GRectangle;
 import acm.program.*;
 import acm.util.RandomGenerator;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 //Author: Hella Nikita, Hrokh Arsen
@@ -15,6 +16,9 @@ public class mainGameClass extends GraphicsProgram {
 
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 800;
+
+    private static final int PADDLE_SPEED = 2;
+    private static final int BALL_DIAMETER = 20;
 
 
     public void run(){
@@ -96,6 +100,15 @@ public class mainGameClass extends GraphicsProgram {
 //        }
     }
 
+    public void keyPressed(KeyEvent e){
+        if (e.getKeyCode() == KeyEvent.VK_LEFT){
+            paddleMovementLeft();
+        }
+        if (e.getKeyCode() == KeyEvent.VK_RIGHT){
+            paddleMovementRight();
+        }
+    }
+
     private void level1(){
         remove(buttonLevel1);
         remove(buttonLevel2);
@@ -111,32 +124,51 @@ public class mainGameClass extends GraphicsProgram {
         GRect rect = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT/10);
         rect.setFilled(true);
 
-        paddle();
-
-
 
         add(level1Screen);
         add(rect);
+        paddle();
+        ball();
 
-//        while (!gameEnded){
-//            paddleMovement();
-//        }
+        if (gameEnded){
+            startScreen();
+        }
+
     }
 
     private void paddle(){
-        GRect paddle = new GRect((double) (WINDOW_WIDTH - WINDOW_WIDTH / 10) /2,WINDOW_HEIGHT - (double) WINDOW_HEIGHT /20, (double) WINDOW_WIDTH /10, (double) WINDOW_HEIGHT /20);
-        paddle.setFilled(true);
-        add(paddle);
+        paddleBox = new GRect((double) (WINDOW_WIDTH - WINDOW_WIDTH / 10) /2,WINDOW_HEIGHT - (double) WINDOW_HEIGHT /20, (double) WINDOW_WIDTH /10, (double) WINDOW_HEIGHT /20);
+        paddleBox.setFilled(true);
+        add(paddleBox);
     }
 
-    private void paddleMovement(){
+    private void ball(){
+        ball = new GOval(WINDOW_WIDTH/2, WINDOW_HEIGHT/2, BALL_DIAMETER, BALL_DIAMETER );
+        ball.setFilled(true);
+        add(ball);
+    }
+    private void ballMovement(){
 
+    }
+
+
+    private void paddleMovementRight(){
+        if(paddleBox != null){
+            paddleBox.move(PADDLE_SPEED, 0);
+        }
+    }
+    private void paddleMovementLeft(){
+        if(paddleBox != null){
+            paddleBox.move(-PADDLE_SPEED, 0);
+        }
     }
 
     RandomGenerator rnd = new RandomGenerator();
 
     private GRect settingsScreen;
 
+    private GOval ball;
+    private GRect paddleBox;
 
     private GRect startScreenCanvas;
 
