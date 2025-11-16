@@ -35,8 +35,12 @@ public class mainGameClass extends GraphicsProgram {
 
 
 
-        startScreen();
-
+//        startScreen();
+        level1();
+        for (int i = 0; i < 100; i++){
+            ballMovement();
+            pause(10);
+        }
     }
 
     private void drawBricks() {
@@ -48,7 +52,7 @@ public class mainGameClass extends GraphicsProgram {
             for (int j = 0; j < BRICKS_PER_ROW; j++) {
                 x = startX + j * (BRICK_GAP + BRICK_WIDTH);
                 y = startY  + i * (BRICK_GAP + BRICK_HEIGHT);
-                GRect brick = new GRect(x, y, BRICK_WIDTH, BRICK_HEIGHT);
+                brick = new GRect(x, y, BRICK_WIDTH, BRICK_HEIGHT);
                 brick.setFilled(true);
                 if ((i + 1) <= 2) {
                     brick.setColor(Color.red);
@@ -81,12 +85,8 @@ public class mainGameClass extends GraphicsProgram {
         buttonLevel2Text = new GLabel("Level 2");
         buttonLevel3Text = new GLabel("Level 3");
 
-
-
         buttonRules = new GRect(2*WINDOW_WIDTH/10,3.5*WINDOW_HEIGHT/5, 6*WINDOW_WIDTH/10,WINDOW_HEIGHT/8);
         buttonRulesText = new GLabel("Rules");
-
-
 
         add(startScreenCanvas);
         add(buttonLevel1);
@@ -101,7 +101,6 @@ public class mainGameClass extends GraphicsProgram {
         add(buttonLevel2Text, buttonLevel2.getX() + buttonLevel2.getWidth()/2 - buttonLevel2Text.getWidth()/2,  buttonLevel2.getY() +  buttonLevel2.getHeight()/2);
         add(buttonLevel3Text, buttonLevel3.getX() + buttonLevel3.getWidth()/2 - buttonLevel3Text.getWidth()/2,  buttonLevel3.getY() +  buttonLevel3.getHeight()/2);
         add(buttonRulesText, buttonRules.getX() + buttonRules.getWidth()/2 - buttonRulesText.getWidth()/2, buttonRules.getY() +  buttonRules.getHeight()/2);
-
 
     }
 
@@ -148,26 +147,28 @@ public class mainGameClass extends GraphicsProgram {
     }
 
     private void level1(){
+
         remove(buttonLevel1);
         remove(buttonLevel2);
         remove(buttonLevel3);
         remove(buttonRules);
 
-
         level1Screen = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
         level1Screen.setFillColor(Color.white);
         level1Screen.setFilled(true);
-
-
 
         add(level1Screen);
         drawBricks();
         paddle();
         ball();
+        intlevel1 = 1;
+//        pause(100);
 
-        if (gameEnded){
-            startScreen();
-        }
+//        for (int i = 0; i < 100; i ++){
+//            ballMovement();
+//            pause(10);
+//        }
+//        startScreen();
 
     }
 
@@ -182,8 +183,19 @@ public class mainGameClass extends GraphicsProgram {
         ball.setFilled(true);
         add(ball);
     }
-    private void ballMovement(){
 
+    private void ballMovement(){
+        ball.move(horizontalBallSpeed, verticalBallSpeed);
+        if (brick != null && brick.getX() == ball.getX() && brick.getY() == ball.getY()){
+            remove(brick);
+            brick = null;
+            verticalBallSpeed *= -1;
+            if(brick == null)
+                gameEnded = true;
+        }
+        if (brick != null && brick.getX() == paddleBox.getX() && brick.getY() == paddleBox.getY()) {
+            verticalBallSpeed *= -1;
+        }
     }
 
 
@@ -198,12 +210,16 @@ public class mainGameClass extends GraphicsProgram {
         }
     }
 
+
+
+
     RandomGenerator rnd = new RandomGenerator();
 
     private GRect settingsScreen;
 
     private GOval ball;
     private GRect paddleBox;
+    private GRect brick;
 
     private GRect startScreenCanvas;
 
@@ -225,7 +241,14 @@ public class mainGameClass extends GraphicsProgram {
 
     private boolean gameEnded;
 
+    private int verticalBallSpeed = -3;
+    private int horizontalBallSpeed = 1;
+
+    int intlevel1;
+
+
     public static void main(String[] args) {
         new mainGameClass().start(args);
     }
+
 }
