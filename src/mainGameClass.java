@@ -1,4 +1,5 @@
 import acm.graphics.GLabel;
+import acm.graphics.GObject;
 import acm.graphics.GOval;
 import acm.graphics.GRect;
 import acm.program.*;
@@ -171,6 +172,27 @@ public class mainGameClass extends GraphicsProgram {
 //        startScreen();
 
     }
+
+    private GObject getCollidingObject() {
+        double x = ball.getX();
+        double y = ball.getY();
+
+        GObject obj = getElementAt(x, y);
+        if (obj != null) return obj;
+
+        obj = getElementAt(x + BALL_DIAMETER, y);
+        if (obj != null) return obj;
+
+        obj = getElementAt(x, y + BALL_DIAMETER);
+        if (obj != null) return obj;
+
+        obj = getElementAt(x + BALL_DIAMETER, y + BALL_DIAMETER);
+        if (obj != null) return obj;
+
+        return null;
+    }
+
+
 
     private void paddle(){
         paddleBox = new GRect((double) (WINDOW_WIDTH - WINDOW_WIDTH / 10) /2,WINDOW_HEIGHT - (double) WINDOW_HEIGHT /20, (double) WINDOW_WIDTH /10, (double) WINDOW_HEIGHT /20);
