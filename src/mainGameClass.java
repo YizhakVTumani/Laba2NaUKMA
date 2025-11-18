@@ -9,7 +9,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
-//Author: Hella Nikita, Hrokh Arsen
+//Author: Hella Nikita, Hrokh Arsenii
 //File: mainGameClass.java
 
 
@@ -18,7 +18,7 @@ public class mainGameClass extends GraphicsProgram {
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 800;
 
-    private static final int PADDLE_SPEED = 2;
+    private static final int PADDLE_SPEED = 8;
     private static final int BALL_DIAMETER = 20;
 
     private static final int BRICKS_PER_ROW = 10;
@@ -35,12 +35,21 @@ public class mainGameClass extends GraphicsProgram {
         addMouseListeners();
 
 
+        startScreen();
 
-//        startScreen();
-        level1();
-        for (int i = 0; i < 100; i++){
+        while (!gameStarted) {
+            pause(50);
+        }
+
+        while (!gameEnded) {
             ballMovement();
-            pause(10);
+            pause(20);
+        }
+
+        if (gameEnded && ball == null) {
+            GLabel looseText = new GLabel("You lost");
+            looseText.setFont("Arial-24");
+            add(looseText, getX() + WINDOW_WIDTH/2.0 - looseText.getWidth()/2, getY() + WINDOW_HEIGHT/2.0);
         }
     }
 
@@ -147,7 +156,7 @@ public class mainGameClass extends GraphicsProgram {
         }
     }
 
-    private void level1(){
+    private void level1() {
 
         remove(buttonLevel1);
         remove(buttonLevel2);
@@ -162,14 +171,8 @@ public class mainGameClass extends GraphicsProgram {
         drawBricks();
         paddle();
         ball();
-        intlevel1 = 1;
-//        pause(100);
-
-//        for (int i = 0; i < 100; i ++){
-//            ballMovement();
-//            pause(10);
-//        }
-//        startScreen();
+        gameEnded = false;
+        gameStarted = true;
 
     }
 
@@ -192,6 +195,16 @@ public class mainGameClass extends GraphicsProgram {
         return null;
     }
 
+    private boolean isBrick(GRect rect) {
+        if (rect == null) return false;
+        if (rect == paddleBox || rect == level1Screen) return false;
+
+        double y = rect.getY();
+        double top = getY() + DISTANCE_TO_FIRST_BRICK;
+        double bottom = top + BRICK_ROWS * (BRICK_GAP + BRICK_HEIGHT);
+
+        return  y >= top && y <= bottom;
+    }
 
 
     private void paddle(){
@@ -208,15 +221,41 @@ public class mainGameClass extends GraphicsProgram {
 
     private void ballMovement(){
         ball.move(horizontalBallSpeed, verticalBallSpeed);
-        if (brick != null && brick.getX() == ball.getX() && brick.getY() == ball.getY()){
-            remove(brick);
-            brick = null;
-            verticalBallSpeed *= -1;
-            if(brick == null)
-                gameEnded = true;
+//        if (brick != null && brick.getX() == ball.getX() && brick.getY() == ball.getY()){
+//            remove(brick);
+//            brick = null;
+//            verticalBallSpeed *= -1;
+//            if(brick == null)
+//                gameEnded = true;
+//        }
+//        if (brick != null && brick.getX() == paddleBox.getX() && brick.getY() == paddleBox.getY()) {
+//            verticalBallSpeed *= -1;
+//        }
+        if  (ball.getX() <= 0) {
+            ball.setLocation(0, ball.getY());
+            horizontalBallSpeed = Math.abs(horizontalBallSpeed);
+        } else if (ball.getX() + BALL_DIAMETER >= WINDOW_WIDTH) {
+            ball.setLocation(WINDOW_WIDTH - BALL_DIAMETER, ball.getY());
+            horizontalBallSpeed = -Math.abs(horizontalBallSpeed);
         }
-        if (brick != null && brick.getX() == paddleBox.getX() && brick.getY() == paddleBox.getY()) {
-            verticalBallSpeed *= -1;
+
+        if (ball.getY() <= 0) {
+            ball.setLocation(ball.getX(), 0);
+            verticalBallSpeed = Math.abs(verticalBallSpeed);
+        } else if (ball.getY() + BALL_DIAMETER >= WINDOW_HEIGHT) {
+            remove(ball);
+            ball = null;
+            gameEnded = true;
+            return;
+        }
+
+        GObject collidedObj = getCollidingObject();
+
+        if (collidedObj != null && collidedObj instanceof GRect && isBrick((GRect) collidedObj)) {
+            remove(collidedObj);
+            verticalBallSpeed = Math.abs(verticalBallSpeed);
+        } else if (collidedObj != null && collidedObj == paddleBox) {
+            verticalBallSpeed = -Math.abs(verticalBallSpeed);
         }
     }
 
@@ -262,7 +301,7 @@ public class mainGameClass extends GraphicsProgram {
     private GRect level3Screen;
 
     private boolean gameEnded;
-
+    private boolean gameStarted;
     private int verticalBallSpeed = -3;
     private int horizontalBallSpeed = 1;
 
