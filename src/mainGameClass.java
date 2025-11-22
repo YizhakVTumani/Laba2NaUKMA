@@ -170,10 +170,53 @@ public class mainGameClass extends GraphicsProgram {
         add(level1Screen);
         drawBricks();
         paddle();
+        drawHearts();
         ball();
         gameEnded = false;
         gameStarted = true;
 
+    }
+
+    private void drawHearts() {
+        int heartSize = 20;
+        int gap = 5;
+        double startX = WINDOW_WIDTH - (heartSize + gap) * 3;
+        double y = 20;
+
+        heart1 = new GOval(startX, y, heartSize, heartSize);
+        heart1.setFilled(true);
+        heart1.setColor(Color.RED);
+        add(heart1);
+
+        heart2 = new GOval(startX + heartSize + gap, y, heartSize, heartSize);
+        heart2.setFilled(true);
+        heart2.setColor(Color.RED);
+        add(heart2);
+
+        heart3 = new GOval(startX + (heartSize + gap) * 2, y, heartSize, heartSize);
+        heart3.setFilled(true);
+        heart3.setColor(Color.RED);
+        add(heart3);
+
+        livesAmount = 3;
+    }
+
+    private void handleLifeLoss() {
+        livesAmount--;
+
+        if (livesAmount == 2) {
+            remove(heart3);
+        } else if (livesAmount == 1) {
+            remove(heart2);
+        } else if (livesAmount <= 0) {
+            remove(heart1);
+            remove(ball);
+            ball = null;
+            gameEnded = true;
+            return;
+        }
+        ball.setLocation(WINDOW_WIDTH / 2.0, WINDOW_HEIGHT / 2.0);
+        pause(1000);
     }
 
     private GObject getCollidingObject() {
@@ -221,16 +264,6 @@ public class mainGameClass extends GraphicsProgram {
 
     private void ballMovement(){
         ball.move(horizontalBallSpeed, verticalBallSpeed);
-//        if (brick != null && brick.getX() == ball.getX() && brick.getY() == ball.getY()){
-//            remove(brick);
-//            brick = null;
-//            verticalBallSpeed *= -1;
-//            if(brick == null)
-//                gameEnded = true;
-//        }
-//        if (brick != null && brick.getX() == paddleBox.getX() && brick.getY() == paddleBox.getY()) {
-//            verticalBallSpeed *= -1;
-//        }
         if  (ball.getX() <= 0) {
             ball.setLocation(0, ball.getY());
             horizontalBallSpeed = Math.abs(horizontalBallSpeed);
@@ -243,9 +276,7 @@ public class mainGameClass extends GraphicsProgram {
             ball.setLocation(ball.getX(), 0);
             verticalBallSpeed = Math.abs(verticalBallSpeed);
         } else if (ball.getY() + BALL_DIAMETER >= WINDOW_HEIGHT) {
-            remove(ball);
-            ball = null;
-            gameEnded = true;
+            handleLifeLoss();
             return;
         }
 
@@ -302,10 +333,15 @@ public class mainGameClass extends GraphicsProgram {
 
     private boolean gameEnded;
     private boolean gameStarted;
-    private int verticalBallSpeed = -3;
+    private int verticalBallSpeed = 3;
     private int horizontalBallSpeed = 1;
 
     int intlevel1;
+
+    GOval heart1;
+    GOval heart2;
+    GOval heart3;
+    int livesAmount = 3;
 
 
     public static void main(String[] args) {
