@@ -55,7 +55,7 @@ public class mainGameClass extends GraphicsProgram {
 
     private void drawBricks() {
         double startX = getX();
-        double startY = getY() + DISTANCE_TO_FIRST_BRICK;
+        double startY = (heart1.getY() + heart1.getHeight()) + DISTANCE_TO_FIRST_BRICK;
         double x;
         double y;
         for (int i = 0; i < BRICK_ROWS; i++) {
@@ -168,9 +168,9 @@ public class mainGameClass extends GraphicsProgram {
         level1Screen.setFilled(true);
 
         add(level1Screen);
+        drawHearts();
         drawBricks();
         paddle();
-        drawHearts();
         ball();
         gameEnded = false;
         gameStarted = true;
@@ -216,7 +216,6 @@ public class mainGameClass extends GraphicsProgram {
             return;
         }
         ball.setLocation(WINDOW_WIDTH / 2.0, WINDOW_HEIGHT / 2.0);
-        pause(1000);
     }
 
     private GObject getCollidingObject() {
@@ -243,7 +242,7 @@ public class mainGameClass extends GraphicsProgram {
         if (rect == paddleBox || rect == level1Screen) return false;
 
         double y = rect.getY();
-        double top = getY() + DISTANCE_TO_FIRST_BRICK;
+        double top = (heart1.getY() + heart1.getHeight()) + DISTANCE_TO_FIRST_BRICK;
         double bottom = top + BRICK_ROWS * (BRICK_GAP + BRICK_HEIGHT);
 
         return  y >= top && y <= bottom;
