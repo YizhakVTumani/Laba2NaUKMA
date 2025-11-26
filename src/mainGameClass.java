@@ -1,13 +1,11 @@
-import acm.graphics.GLabel;
-import acm.graphics.GObject;
-import acm.graphics.GOval;
-import acm.graphics.GRect;
+import acm.graphics.*;
 import acm.program.*;
 import acm.util.RandomGenerator;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.Random;
 
 //Author: Hella Nikita, Hrokh Arsenii
 //File: mainGameClass.java
@@ -15,8 +13,8 @@ import java.awt.event.MouseEvent;
 
 public class mainGameClass extends GraphicsProgram {
 
-    private static final int WINDOW_WIDTH = 600;
-    private static final int WINDOW_HEIGHT = 500;
+    private static final int WINDOW_WIDTH = 800;
+    private static final int WINDOW_HEIGHT = 800;
 
     private static final int PADDLE_SPEED = 8;
     private static final int BALL_DIAMETER = 20;
@@ -98,6 +96,32 @@ public class mainGameClass extends GraphicsProgram {
         buttonRules = new GRect(2*WINDOW_WIDTH/10,3.5*WINDOW_HEIGHT/5, 6*WINDOW_WIDTH/10,WINDOW_HEIGHT/8);
         buttonRulesText = new GLabel("Rules");
 
+        startScreenCanvas.setFillColor(new Color(20, 33, 50));
+        buttonLevel1.setFillColor(new Color(57, 73, 171));
+        buttonLevel2.setFillColor(new Color(57, 73, 171));
+        buttonLevel3.setFillColor(new Color(57, 73, 171));
+        buttonRules.setFillColor(new Color(161, 122, 42));
+
+        startScreenCanvas.setFilled(true);
+        buttonLevel1.setFilled(true);
+        buttonLevel2.setFilled(true);
+        buttonLevel3.setFilled(true);
+        buttonRules.setFilled(true);
+
+        buttonLevel1.setColor(new Color(91, 104, 117));
+        buttonLevel2.setColor(new Color(91, 104, 117));
+        buttonLevel3.setColor(new Color(91, 104, 117));
+        buttonRules.setColor(new Color(91, 104, 117));
+
+        buttonRulesText.setColor(new  Color(255, 255, 255));
+        buttonLevel1Text.setColor(new  Color(255, 255, 255));
+        buttonLevel2Text.setColor(new  Color(255, 255, 255));
+        buttonLevel3Text.setColor(new  Color(255, 255, 255));
+
+
+
+
+
         add(startScreenCanvas);
         add(buttonLevel1);
         add(buttonLevel2);
@@ -130,6 +154,7 @@ public class mainGameClass extends GraphicsProgram {
     private void replayScreen(){
         replayScreen = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
         replayScreen.setFilled(true);
+        replayScreen.setFillColor(Color.white);
         add(replayScreen);
 
         mainMenuButton = new GRect(0,0,WINDOW_WIDTH/2,WINDOW_HEIGHT/2);
@@ -156,11 +181,15 @@ public class mainGameClass extends GraphicsProgram {
 
         if (replayButton != null && replayButton.contains(e.getX(), e.getY())){
             level1();
+            remove(replayButton);
+            remove(buttonLevel1);
             replayButton =null;
             mainMenuButton = null;
         }
         else if(mainMenuButton != null && mainMenuButton.contains(e.getX(), e.getY())){
             startScreen();
+            remove(replayButton);
+            remove(buttonLevel1);
             replayButton = null;
             mainMenuButton = null;
         }
@@ -263,6 +292,102 @@ public class mainGameClass extends GraphicsProgram {
         return null;
     }
 
+    private GObject getCollidingObjectForBonusesSpeed() {
+        if (speedUpBonus != null) {
+            double x = speedUpBonus.getX();
+            double y = speedUpBonus.getY();
+
+            GObject obj = getElementAt(x, y);
+            if (obj != null) return obj;
+
+            obj = getElementAt(x + BALL_DIAMETER, y);
+            if (obj != null) return obj;
+
+            obj = getElementAt(x, y + BALL_DIAMETER);
+            if (obj != null) return obj;
+
+            obj = getElementAt(x + BALL_DIAMETER, y + BALL_DIAMETER);
+            if (obj != null) return obj;
+        }
+        return null;
+    }
+    private GObject getCollidingObjectForBonusesSlow(){
+        if (slowDownBonus != null) {
+            double x = slowDownBonus.getX();
+            double y = slowDownBonus.getY();
+
+            GObject obj = getElementAt(x, y);
+            if (obj != null) return obj;
+
+            obj = getElementAt(x + BALL_DIAMETER, y);
+            if (obj != null) return obj;
+
+            obj = getElementAt(x, y + BALL_DIAMETER);
+            if (obj != null) return obj;
+
+            obj = getElementAt(x + BALL_DIAMETER, y + BALL_DIAMETER);
+            if (obj != null) return obj;
+        }
+        return null;
+    }
+    private GObject getCollidingObjectForBonusesBig(){
+        if (paddleBigBonus != null) {
+            double x = paddleBigBonus.getX();
+            double y = paddleBigBonus.getY();
+
+            GObject obj = getElementAt(x, y);
+            if (obj != null) return obj;
+
+            obj = getElementAt(x + BALL_DIAMETER, y);
+            if (obj != null) return obj;
+
+            obj = getElementAt(x, y + BALL_DIAMETER);
+            if (obj != null) return obj;
+
+            obj = getElementAt(x + BALL_DIAMETER, y + BALL_DIAMETER);
+            if (obj != null) return obj;
+        }
+        return null;
+    }
+    private GObject getCollidingObjectForBonusesSmall(){
+        if (paddleSmallBonus != null) {
+            double x = paddleSmallBonus.getX();
+            double y = paddleSmallBonus.getY();
+
+            GObject obj = getElementAt(x, y);
+            if (obj != null) return obj;
+
+            obj = getElementAt(x + BALL_DIAMETER, y);
+            if (obj != null) return obj;
+
+            obj = getElementAt(x, y + BALL_DIAMETER);
+            if (obj != null) return obj;
+
+            obj = getElementAt(x + BALL_DIAMETER, y + BALL_DIAMETER);
+            if (obj != null) return obj;
+        }
+        return null;
+    }
+    private GObject getCollidingObjectForBonusesSpecial(){
+        if (secretBonus != null) {
+            double x = secretBonus.getX();
+            double y = secretBonus.getY();
+
+            GObject obj = getElementAt(x, y);
+            if (obj != null) return obj;
+
+            obj = getElementAt(x + BALL_DIAMETER, y);
+            if (obj != null) return obj;
+
+            obj = getElementAt(x, y + BALL_DIAMETER);
+            if (obj != null) return obj;
+
+            obj = getElementAt(x + BALL_DIAMETER, y + BALL_DIAMETER);
+            if (obj != null) return obj;
+        }
+        return null;
+    }
+
     private boolean isBrick(GRect rect) {
         if (rect == null) return false;
         if (rect == paddleBox || rect == level1Screen) return false;
@@ -295,7 +420,6 @@ public class mainGameClass extends GraphicsProgram {
 
         return  y >= top && y <= bottom;
     }
-
 
     private void paddle(){
         paddleBox = new GRect((double) (WINDOW_WIDTH - WINDOW_WIDTH / 10) /2,WINDOW_HEIGHT - (double) WINDOW_HEIGHT /20, (double) WINDOW_WIDTH /10, (double) WINDOW_HEIGHT /20);
@@ -332,21 +456,19 @@ public class mainGameClass extends GraphicsProgram {
 
         if (collidedObj != null && collidedObj instanceof GRect && isBrick((GRect) collidedObj)) {
             remove(collidedObj);
-//            bonusDistribute();
+            bonusDistribute();
             verticalBallSpeed = Math.abs(verticalBallSpeed);
         } else if (collidedObj != null && collidedObj == paddleBox) {
             verticalBallSpeed = -Math.abs(verticalBallSpeed);
         }
     }
 
-
-
-
     private void paddleMovementRight(){
         if(paddleBox != null && paddleBox.getX() + paddleBox.getWidth() < WINDOW_WIDTH){
             paddleBox.move(PADDLE_SPEED, 0);
         }
     }
+
     private void paddleMovementLeft(){
         if(paddleBox != null && paddleBox.getX() > 0){
             paddleBox.move(-PADDLE_SPEED, 0);
@@ -354,34 +476,107 @@ public class mainGameClass extends GraphicsProgram {
     }
 
     private void bonusDistribute(){
-        bonusRandomizer = rnd.nextInt(0, 1);
-        if (bonusRandomizer >= -1){
-            speedBonus();
+        bonusRandomizer = rnd.nextInt(0, 6);
+        if (bonusRandomizer == 1){
+            speedUpBonus();
+        }
+        if (bonusRandomizer == 2){
+            slowDownBonus();
+        }
+        if (bonusRandomizer == 3){
+            bigPaddleBonus();
+        }
+        if (bonusRandomizer == 4){
+            littlePaddleBonus();
+        }
+        if (bonusRandomizer == 5){
+            secretBonus();
         }
     }
 
-    private void speedBonus(){
-        bonus = new GOval(BALL_DIAMETER, BALL_DIAMETER);
-        add(bonus, ball.getX(), ball.getY());
+
+    private void speedUpBonus(){
+        speedUpBonus = new GImage("speedUpBubble.png");
+        speedUpBonus.setSize(BALL_DIAMETER, BALL_DIAMETER);
+        add(speedUpBonus, ball.getX(), ball.getY());
     }
+    private void slowDownBonus(){
+        slowDownBonus = new GImage("slowDownBubble.png");
+        slowDownBonus.setSize(BALL_DIAMETER, BALL_DIAMETER);
+        add(slowDownBonus, ball.getX(), ball.getY());
+    }
+    private void bigPaddleBonus(){
+        paddleBigBonus = new GImage("bigBubble.png");
+        paddleBigBonus.setSize(BALL_DIAMETER, BALL_DIAMETER);
+        add(paddleBigBonus, ball.getX(), ball.getY());
+    }
+    private void littlePaddleBonus(){
+        paddleSmallBonus = new GImage("littleBubble.png");
+        paddleSmallBonus.setSize(BALL_DIAMETER, BALL_DIAMETER);
+        add(paddleSmallBonus, ball.getX(), ball.getY());
+    }
+    private void secretBonus(){
+        secretBonus = new GImage("heart.png");
+        secretBonus.setSize(BALL_DIAMETER, BALL_DIAMETER);
+        add(secretBonus, ball.getX(), ball.getY());
+    }
+
+
 
     private void bonusMovement(){
-        if (bonus != null){
-            bonus.move(0, bonusVSpeed);
+        GObject collidedObjForBonusesSpeed = getCollidingObjectForBonusesSpeed();
+        GObject collidedObjForBonusesSlow = getCollidingObjectForBonusesSlow();
+        GObject collidedObjForBonusesBig = getCollidingObjectForBonusesBig();
+        GObject collidedObjForBonusesSmall = getCollidingObjectForBonusesSmall();
+        GObject collidedObjForBonusesSpecial = getCollidingObjectForBonusesSpecial();
+
+        if (speedUpBonus != null && getCollidingObjectForBonusesSpeed() != null && getCollidingObjectForBonusesSpeed() == level1Screen) {
+            speedUpBonus.move(0, bonusVSpeed);
+        }
+        if (slowDownBonus != null && getCollidingObjectForBonusesSlow() != null && getCollidingObjectForBonusesSlow() == level1Screen) {
+            slowDownBonus.move(0, bonusVSpeed);
+        }
+        if (paddleBigBonus != null && getCollidingObjectForBonusesBig() != null && getCollidingObjectForBonusesBig() == level1Screen) {
+            paddleBigBonus.move(0, bonusVSpeed);
+        }
+        if (paddleSmallBonus != null && getCollidingObjectForBonusesSmall() != null && getCollidingObjectForBonusesSmall() == level1Screen) {
+            paddleSmallBonus.move(0, bonusVSpeed);
+        }
+        if (secretBonus != null && getCollidingObjectForBonusesSpecial() != null && getCollidingObjectForBonusesSpecial() == level1Screen) {
+            secretBonus.move(0, bonusVSpeed);
         }
 
-//        getElementAt(bonus.getX()+bonus.getWidth(), bonus.getY()+bonus.getHeight());
 
+        if (collidedObjForBonusesSpeed != null && collidedObjForBonusesSpeed == paddleBox && bonusRandomizer == 1) {
+            remove(speedUpBonus);
+            speedUpBonus = null;
+            verticalBallSpeed *= 1.3;
+        }
+        else if (collidedObjForBonusesSlow != null && collidedObjForBonusesSlow == paddleBox && bonusRandomizer == 2) {
+            remove(slowDownBonus);
+            slowDownBonus = null;
+            verticalBallSpeed /= 1.3;
+        }
+        else if (collidedObjForBonusesSmall != null && collidedObjForBonusesSmall == paddleBox && bonusRandomizer == 3) {
+            paddleBox.setSize(paddleBox.getWidth()/2, paddleBox.getHeight());
 
-        GObject collidedObj = getCollidingObject();
-//        if (collidedObj != null && collidedObj instanceof GRect && isPaddlo((GRect) collidedObj)) {
-//            verticalBallSpeed *= 10;
-//            remove(bonus);
-//        }
-
-        if (collidedObj != null && collidedObj == paddleBox) {
-            verticalBallSpeed *= 10;
-            remove(bonus);
+        }
+        else if (collidedObjForBonusesBig != null && collidedObjForBonusesBig == paddleBox && bonusRandomizer == 4) {
+            paddleBox.setSize(paddleBox.getWidth()*2, paddleBox.getHeight());
+        }
+        else if (collidedObjForBonusesSpecial != null && collidedObjForBonusesSpecial == paddleBox && bonusRandomizer == 5) {
+            if (livesAmount == 1){
+                livesAmount++;
+                add(heart2);
+            }
+            else if (livesAmount == 2){
+                livesAmount++;
+                add(heart3);
+            }
+            else if (livesAmount == 0) {
+                livesAmount++;
+                add(heart1);
+            }
         }
     }
 
@@ -390,11 +585,14 @@ public class mainGameClass extends GraphicsProgram {
 
     private int bonusRandomizer = 0;
 
-    private GRect settingsScreen;
-
     private int bonusVSpeed = 3;
 
-    private GOval bonus;
+    private GImage speedUpBonus;
+    private GImage slowDownBonus;
+    private GImage paddleBigBonus;
+    private GImage paddleSmallBonus;
+    private GImage secretBonus;
+
     private GOval ball;
     private GRect paddleBox;
     private GRect brick;
@@ -424,7 +622,7 @@ public class mainGameClass extends GraphicsProgram {
 
     private boolean gameEnded;
     private boolean gameStarted;
-    private double verticalBallSpeed = 3;
+    private double verticalBallSpeed = 5;
     private int horizontalBallSpeed = 1;
 
     int intlevel1;
