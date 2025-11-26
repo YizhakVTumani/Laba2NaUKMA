@@ -15,8 +15,8 @@ import java.awt.event.MouseEvent;
 
 public class mainGameClass extends GraphicsProgram {
 
-    private static final int WINDOW_WIDTH = 800;
-    private static final int WINDOW_HEIGHT = 800;
+    private static final int WINDOW_WIDTH = 600;
+    private static final int WINDOW_HEIGHT = 500;
 
     private static final int PADDLE_SPEED = 8;
     private static final int BALL_DIAMETER = 20;
@@ -27,6 +27,7 @@ public class mainGameClass extends GraphicsProgram {
     private static final int BRICK_WIDTH = (WINDOW_WIDTH - (BRICKS_PER_ROW - 1) * BRICK_GAP) / BRICKS_PER_ROW;
     private static final int BRICK_HEIGHT = 8;
     private static final int DISTANCE_TO_FIRST_BRICK = 100;
+    private Object rect;
 
 
     public void run(){
@@ -43,13 +44,12 @@ public class mainGameClass extends GraphicsProgram {
 
         while (!gameEnded) {
             ballMovement();
+            bonusMovement();
             pause(20);
         }
 
         if (gameEnded && ball == null) {
-            GLabel looseText = new GLabel("You lost");
-            looseText.setFont("Arial-24");
-            add(looseText, getX() + WINDOW_WIDTH/2.0 - looseText.getWidth()/2, getY() + WINDOW_HEIGHT/2.0);
+            replayScreen();
         }
     }
 
@@ -127,18 +127,44 @@ public class mainGameClass extends GraphicsProgram {
         add(rulesText);
     }
 
+    private void replayScreen(){
+        replayScreen = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
+        replayScreen.setFilled(true);
+        add(replayScreen);
+
+        mainMenuButton = new GRect(0,0,WINDOW_WIDTH/2,WINDOW_HEIGHT/2);
+        replayButton = new GRect(WINDOW_WIDTH/2,WINDOW_HEIGHT/2,WINDOW_WIDTH/2,WINDOW_HEIGHT/2);
+
+
+
+        add(mainMenuButton);
+        add(replayButton);
+    }
+
     public void mouseClicked(MouseEvent e){
 
         /*
         перевірка, чи натискає користувач на кнопки на мейн меню скріні
          */
 
-        if(buttonRules.contains(e.getX(), e.getY())){
+        if(buttonRules!= null && buttonRules.contains(e.getX(), e.getY())){
             rulesScreen();
         }
-        else if(buttonLevel1.contains(e.getX(), e.getY())){
+        else if(buttonLevel1 != null && buttonLevel1.contains(e.getX(), e.getY())){
             level1();
         }
+
+        if (replayButton != null && replayButton.contains(e.getX(), e.getY())){
+            level1();
+            replayButton =null;
+            mainMenuButton = null;
+        }
+        else if(mainMenuButton != null && mainMenuButton.contains(e.getX(), e.getY())){
+            startScreen();
+            replayButton = null;
+            mainMenuButton = null;
+        }
+
 //        if(buttonLevel2.contains(e.getX(), e.getY())){
 //            level2();
 //        }
@@ -248,6 +274,28 @@ public class mainGameClass extends GraphicsProgram {
         return  y >= top && y <= bottom;
     }
 
+    private boolean isBonus(GOval oval) {
+        if (oval == null) return false;
+        if (oval == ball) return false;
+
+        double y = oval.getY();
+        double top = oval.getY();
+        double bottom = oval.getY() + oval.getHeight();
+
+        return  y >= top && y <= bottom;
+    }
+
+    private boolean isPaddlo(GRect rect) {
+        if (rect == null) return false;
+        if (rect == level1Screen || rect.getY() <= brick.getY() + brick.getHeight()) return false;
+
+        double y = rect.getY();
+        double top = rect.getY();
+        double bottom = rect.getY() + rect.getHeight();
+
+        return  y >= top && y <= bottom;
+    }
+
 
     private void paddle(){
         paddleBox = new GRect((double) (WINDOW_WIDTH - WINDOW_WIDTH / 10) /2,WINDOW_HEIGHT - (double) WINDOW_HEIGHT /20, (double) WINDOW_WIDTH /10, (double) WINDOW_HEIGHT /20);
@@ -263,6 +311,7 @@ public class mainGameClass extends GraphicsProgram {
 
     private void ballMovement(){
         ball.move(horizontalBallSpeed, verticalBallSpeed);
+
         if  (ball.getX() <= 0) {
             ball.setLocation(0, ball.getY());
             horizontalBallSpeed = Math.abs(horizontalBallSpeed);
@@ -283,11 +332,14 @@ public class mainGameClass extends GraphicsProgram {
 
         if (collidedObj != null && collidedObj instanceof GRect && isBrick((GRect) collidedObj)) {
             remove(collidedObj);
+//            bonusDistribute();
             verticalBallSpeed = Math.abs(verticalBallSpeed);
         } else if (collidedObj != null && collidedObj == paddleBox) {
             verticalBallSpeed = -Math.abs(verticalBallSpeed);
         }
     }
+
+
 
 
     private void paddleMovementRight(){
@@ -301,13 +353,48 @@ public class mainGameClass extends GraphicsProgram {
         }
     }
 
+    private void bonusDistribute(){
+        bonusRandomizer = rnd.nextInt(0, 1);
+        if (bonusRandomizer >= -1){
+            speedBonus();
+        }
+    }
 
+    private void speedBonus(){
+        bonus = new GOval(BALL_DIAMETER, BALL_DIAMETER);
+        add(bonus, ball.getX(), ball.getY());
+    }
+
+    private void bonusMovement(){
+        if (bonus != null){
+            bonus.move(0, bonusVSpeed);
+        }
+
+//        getElementAt(bonus.getX()+bonus.getWidth(), bonus.getY()+bonus.getHeight());
+
+
+        GObject collidedObj = getCollidingObject();
+//        if (collidedObj != null && collidedObj instanceof GRect && isPaddlo((GRect) collidedObj)) {
+//            verticalBallSpeed *= 10;
+//            remove(bonus);
+//        }
+
+        if (collidedObj != null && collidedObj == paddleBox) {
+            verticalBallSpeed *= 10;
+            remove(bonus);
+        }
+    }
 
 
     RandomGenerator rnd = new RandomGenerator();
 
+    private int bonusRandomizer = 0;
+
     private GRect settingsScreen;
 
+    private int bonusVSpeed = 3;
+
+    private GOval bonus;
     private GOval ball;
     private GRect paddleBox;
     private GRect brick;
@@ -326,13 +413,18 @@ public class mainGameClass extends GraphicsProgram {
     private GRect rulesScreen;
     private GLabel rulesText;
 
+    private GRect replayScreen;
+    private GRect replayButton;
+    private GRect mainMenuButton;
+
+
     private GRect level1Screen;
     private GRect level2Screen;
     private GRect level3Screen;
 
     private boolean gameEnded;
     private boolean gameStarted;
-    private int verticalBallSpeed = 3;
+    private double verticalBallSpeed = 3;
     private int horizontalBallSpeed = 1;
 
     int intlevel1;
