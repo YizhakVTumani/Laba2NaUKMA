@@ -20,7 +20,7 @@ public class mainGameClass extends GraphicsProgram {
     private static final int BALL_DIAMETER = 20;
 
     private static final int BRICKS_PER_ROW = 10;
-    private static final int BRICK_ROWS = 10;
+    private static final int BRICK_ROWS = 1;
     private static final int BRICK_GAP = 4;
     private static final int BRICK_WIDTH = (WINDOW_WIDTH - (BRICKS_PER_ROW - 1) * BRICK_GAP) / BRICKS_PER_ROW;
     private static final int BRICK_HEIGHT = 8;
@@ -49,6 +49,7 @@ public class mainGameClass extends GraphicsProgram {
 
             while (gameEnded && ball == null) {
                 replayScreen();
+                pause(50);
             }
         }
     }
@@ -222,16 +223,29 @@ public class mainGameClass extends GraphicsProgram {
             mainMenuButton = new GRect(WINDOW_WIDTH/10,WINDOW_HEIGHT/3, 2*WINDOW_WIDTH/10,WINDOW_HEIGHT/4);
             replayButton = new GRect(7*WINDOW_WIDTH/10,WINDOW_HEIGHT/3, 2*WINDOW_WIDTH/10,WINDOW_HEIGHT/4);
 
-
             mainMenuButton.setFilled(true);
             replayButton.setFilled(true);
             replayButton.setFillColor(new Color(57, 73, 171));
             mainMenuButton.setFillColor(new Color(57, 73, 171));
 
+            if (livesAmount > 0 && gameEnded && bricksAmount == 0 && ball != null) {
+                statusLabel = new GLabel("VICTORY!");
+                statusLabel.setColor(Color.GREEN);
+            } else {
+                statusLabel = new GLabel("GAME OVER");
+                statusLabel.setColor(Color.RED);
+            }
+
+            statusLabel.setFont("SansSerif-Bold-40");
+            double x = (WINDOW_WIDTH - statusLabel.getWidth()) / 2;
+            double y = (double) WINDOW_HEIGHT / 4;
+            add(statusLabel, x, y);
+
             replayLabel = new GLabel("Replay");
             mainMenuLabel = new GLabel("Main menu");
             replayLabel.setColor(new  Color(255, 255, 255));
             mainMenuLabel.setColor(new  Color(255, 255, 255));
+
 
             add(mainMenuButton);
             add(replayButton);
@@ -549,9 +563,21 @@ public class mainGameClass extends GraphicsProgram {
 
         if (collidedObj != null && collidedObj instanceof GRect && isBrick((GRect) collidedObj)) {
             remove(collidedObj);
+            bricksAmount--;
             bonusDistribute();
-            verticalBallSpeed = Math.abs(verticalBallSpeed);
+            verticalBallSpeed = -verticalBallSpeed;
+            if (bricksAmount == 0) {
+                gameEnded = true;
+                return;
+            }
+            // це зазорчик в декілька пікселя, шоб не провалювався м'ячик
+            if (verticalBallSpeed < 0) {
+                ball.setLocation(ball.getX(), ball.getY() - collidedObj.getHeight() * 0.25);
+            } else {
+                ball.setLocation(ball.getX(), ball.getY() + collidedObj.getHeight() * 0.25);
+            }
         } else if (collidedObj != null && collidedObj == paddleBox) {
+            ball.setLocation(ball.getX(), ball.getY() - collidedObj.getHeight() * 0.25);
             verticalBallSpeed = -Math.abs(verticalBallSpeed);
         }
     }
@@ -676,6 +702,8 @@ public class mainGameClass extends GraphicsProgram {
 
     RandomGenerator rnd = new RandomGenerator();
 
+    private GLabel statusLabel;
+    private int bricksAmount = BRICKS_PER_ROW * BRICK_ROWS;
     private int bonusRandomizer = 0;
 
     private int bonusVSpeed = 3;
