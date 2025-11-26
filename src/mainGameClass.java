@@ -36,18 +36,20 @@ public class mainGameClass extends GraphicsProgram {
 
         startScreen();
 
-        while (!gameStarted) {
-            pause(50);
-        }
+        while (true){
+            while (!gameStarted) {
+                pause(50);
+            }
 
-        while (!gameEnded) {
-            ballMovement();
-            bonusMovement();
-            pause(20);
-        }
+            while (!gameEnded) {
+                ballMovement();
+                bonusMovement();
+                pause(20);
+            }
 
-        if (gameEnded && ball == null) {
-            replayScreen();
+            while (gameEnded && ball == null) {
+                replayScreen();
+            }
         }
     }
 
@@ -152,18 +154,45 @@ public class mainGameClass extends GraphicsProgram {
     }
 
     private void replayScreen(){
-        replayScreen = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
-        replayScreen.setFilled(true);
-        replayScreen.setFillColor(Color.white);
-        add(replayScreen);
+        if (replayScreen == null){
+            replayScreen = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
+            replayScreen.setFilled(true);
+            replayScreen.setFillColor(new Color(20, 33, 50));
+            add(replayScreen);
 
-        mainMenuButton = new GRect(0,0,WINDOW_WIDTH/2,WINDOW_HEIGHT/2);
-        replayButton = new GRect(WINDOW_WIDTH/2,WINDOW_HEIGHT/2,WINDOW_WIDTH/2,WINDOW_HEIGHT/2);
+            mainMenuButton = new GRect(WINDOW_WIDTH/10,WINDOW_HEIGHT/3, 2*WINDOW_WIDTH/10,WINDOW_HEIGHT/4);
+            replayButton = new GRect(7*WINDOW_WIDTH/10,WINDOW_HEIGHT/3, 2*WINDOW_WIDTH/10,WINDOW_HEIGHT/4);
 
 
+            mainMenuButton.setFilled(true);
+            replayButton.setFilled(true);
+            replayButton.setFillColor(new Color(57, 73, 171));
+            mainMenuButton.setFillColor(new Color(57, 73, 171));
 
-        add(mainMenuButton);
-        add(replayButton);
+            replayLabel = new GLabel("Replay");
+            mainMenuLabel = new GLabel("Main menu");
+            replayLabel.setColor(new  Color(255, 255, 255));
+            mainMenuLabel.setColor(new  Color(255, 255, 255));
+
+            add(mainMenuButton);
+            add(replayButton);
+
+            add(replayLabel, replayButton.getX() + replayButton.getWidth()/2 - replayLabel.getWidth()/2,  replayButton.getY() +  replayButton.getHeight()/2);
+            add(mainMenuLabel, mainMenuButton.getX() + mainMenuButton.getWidth()/2 - mainMenuLabel.getWidth()/2,  mainMenuButton.getY() +  mainMenuButton.getHeight()/2);
+        }
+    }
+
+    private void removeReplayScreen(){
+        remove(replayButton);
+        remove(replayLabel);
+        remove(mainMenuButton);
+        remove(mainMenuLabel);
+        remove(replayScreen);
+        replayButton = null;
+        replayLabel = null;
+        mainMenuButton = null;
+        replayScreen = null;
+        mainMenuLabel = null;
     }
 
     public void mouseClicked(MouseEvent e){
@@ -181,17 +210,11 @@ public class mainGameClass extends GraphicsProgram {
 
         if (replayButton != null && replayButton.contains(e.getX(), e.getY())){
             level1();
-            remove(replayButton);
-            remove(buttonLevel1);
-            replayButton =null;
-            mainMenuButton = null;
+            removeReplayScreen();
         }
         else if(mainMenuButton != null && mainMenuButton.contains(e.getX(), e.getY())){
             startScreen();
-            remove(replayButton);
-            remove(buttonLevel1);
-            replayButton = null;
-            mainMenuButton = null;
+            removeReplayScreen();
         }
 
 //        if(buttonLevel2.contains(e.getX(), e.getY())){
@@ -614,6 +637,8 @@ public class mainGameClass extends GraphicsProgram {
     private GRect replayScreen;
     private GRect replayButton;
     private GRect mainMenuButton;
+    private GLabel mainMenuLabel;
+    private GLabel replayLabel;
 
 
     private GRect level1Screen;
