@@ -142,15 +142,74 @@ public class mainGameClass extends GraphicsProgram {
 
     private void rulesScreen(){
         rulesScreen = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
-        rulesText = new GLabel("Should write some rules");
-
         rulesScreen.setFilled(true);
-        /*
-        Треба написати правила та відформатувати їх
-         */
-
+        rulesScreen.setFillColor(new Color(20, 33, 50));
         add(rulesScreen);
-        add(rulesText);
+
+        rulesText = new GLabel("Breakout Game Rules");
+
+        GLabel label1 = new GLabel("I. Objective");
+        GLabel label2 = new GLabel("The primary goal of the game is to destroy all the colored bricks that form a wall at the top of the screen by hitting them with a ball.");
+        GLabel label3 = new GLabel("II. Gameplay");
+        GLabel label4 = new GLabel("The Paddle: Players control a horizontal paddle located at the bottom of the screen. The paddle can only move horizontally (left and right).");
+        GLabel label5 = new GLabel("The Ball: A single ball is in play. The player launches the ball from the paddle toward the wall of bricks.");
+        GLabel label6 = new GLabel("Destroying Bricks: Each time the ball hits a brick, that brick is destroyed, and the player scores points.");
+        GLabel label7 = new GLabel("Rebound: The ball automatically reflects off the walls, the paddle, and the bricks. The angle of the ball's rebound from the paddle can ");
+        GLabel label71 = new GLabel("be controlled by hitting the ball with different sections of the paddle.");
+        GLabel label8 = new GLabel("Losing a Ball (Turn): If the player fails to hit the ball with the paddle and it travels past the bottom of the screen, one ball (life) is lost. ");
+        GLabel label9 = new GLabel("End of Game: The game ends when the player has destroyed all the bricks on the screen (or cleared a set number of screens/walls) or when ");
+        GLabel label91 = new GLabel("all of the player's balls have been used. ");
+        GLabel label10 = new GLabel("III. Winning ");
+        GLabel label11 = new GLabel("A player or team wins the game by being the first to completely destroy all the bricks on the two designated walls (screens). ");
+        GLabel label12 = new GLabel("If all balls are lost before the walls are cleared, the winner is the player who has achieved the highest score.");
+
+        rulesText.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
+        label1.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
+        label2.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        label3.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
+        label4.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        label5.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        label6.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        label7.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        label71.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        label8.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        label9.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        label91.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        label10.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
+        label11.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        label12.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+
+        rulesText.setColor(new  Color(255, 255, 255));
+        label1.setColor(new  Color(255, 255, 255));
+        label2.setColor(new  Color(255, 255, 255));
+        label3.setColor(new  Color(255, 255, 255));
+        label4.setColor(new  Color(255, 255, 255));
+        label5.setColor(new  Color(255, 255, 255));
+        label6.setColor(new  Color(255, 255, 255));
+        label7.setColor(new  Color(255, 255, 255));
+        label71.setColor(new  Color(255, 255, 255));
+        label8.setColor(new  Color(255, 255, 255));
+        label9.setColor(new  Color(255, 255, 255));
+        label91.setColor(new  Color(255, 255, 255));
+        label10.setColor(new  Color(255, 255, 255));
+        label11.setColor(new  Color(255, 255, 255));
+        label12.setColor(new  Color(255, 255, 255));
+        add(rulesText, 80, rulesText.getHeight());
+        add(label1, 20, label1.getHeight()*3);
+        add(label2, 20, label1.getHeight()*5);
+        add(label3, 20, label1.getHeight()*7);
+        add(label4, 20, label1.getHeight()*9);
+        add(label5, 20, label1.getHeight()*11);
+        add(label6, 20, label1.getHeight()*13);
+        add(label7, 20, label1.getHeight()*15);
+        add(label71, 20, label1.getHeight()*17);
+        add(label8, 20, label1.getHeight()*19);
+        add(label9, 20, label1.getHeight()*21);
+        add(label91, 20, label1.getHeight()*23);
+        add(label10, 20, label1.getHeight()*25);
+        add(label11, 20, label1.getHeight()*27);
+        add(label12, 20, label1.getHeight()*29);
+
     }
 
     private void replayScreen(){
@@ -183,16 +242,19 @@ public class mainGameClass extends GraphicsProgram {
     }
 
     private void removeReplayScreen(){
-        remove(replayButton);
-        remove(replayLabel);
-        remove(mainMenuButton);
-        remove(mainMenuLabel);
-        remove(replayScreen);
-        replayButton = null;
-        replayLabel = null;
-        mainMenuButton = null;
-        replayScreen = null;
-        mainMenuLabel = null;
+        if (replayScreen != null){
+            remove(replayButton);
+            remove(replayLabel);
+            remove(mainMenuButton);
+            remove(mainMenuLabel);
+            remove(replayScreen);
+            replayButton = null;
+            replayLabel = null;
+            mainMenuButton = null;
+            replayScreen = null;
+            mainMenuLabel = null;
+        }
+
     }
 
     public void mouseClicked(MouseEvent e){
@@ -232,6 +294,10 @@ public class mainGameClass extends GraphicsProgram {
         if (e.getKeyCode() == KeyEvent.VK_RIGHT){
             paddleMovementRight();
         }
+        if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+            startScreen();
+            removeReplayScreen();
+        }
     }
 
     private void level1() {
@@ -242,7 +308,7 @@ public class mainGameClass extends GraphicsProgram {
         remove(buttonRules);
 
         level1Screen = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
-        level1Screen.setFillColor(Color.white);
+        level1Screen.setFillColor(new Color(20, 33, 50));
         level1Screen.setFilled(true);
 
         add(level1Screen);
@@ -447,12 +513,16 @@ public class mainGameClass extends GraphicsProgram {
     private void paddle(){
         paddleBox = new GRect((double) (WINDOW_WIDTH - WINDOW_WIDTH / 10) /2,WINDOW_HEIGHT - (double) WINDOW_HEIGHT /20, (double) WINDOW_WIDTH /10, (double) WINDOW_HEIGHT /20);
         paddleBox.setFilled(true);
+        paddleBox.setFillColor(Color.black);
+        paddleBox.setColor(Color.white);
         add(paddleBox);
     }
 
     private void ball(){
         ball = new GOval(WINDOW_WIDTH/2, WINDOW_HEIGHT/2, BALL_DIAMETER, BALL_DIAMETER );
         ball.setFilled(true);
+        ball.setFillColor(Color.black);
+        ball.setColor(Color.white);
         add(ball);
     }
 
@@ -648,7 +718,7 @@ public class mainGameClass extends GraphicsProgram {
     private boolean gameEnded;
     private boolean gameStarted;
     private double verticalBallSpeed = 5;
-    private int horizontalBallSpeed = 1;
+    private int horizontalBallSpeed = rnd.nextInt(-3,3);
 
     int intlevel1;
 
