@@ -16,16 +16,16 @@ public class mainGameClass extends GraphicsProgram {
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 800;
 
-    private static final int PADDLE_SPEED = 8;
+    private static final int PADDLE_SPEED = 20;
     private static final int BALL_DIAMETER = 20;
 
     private static final int BRICKS_PER_ROW = 10;
-    private static final int BRICK_ROWS = 1;
+    private static final int BRICK_ROWS = 10;
     private static final int BRICK_GAP = 4;
     private static final int BRICK_WIDTH = (WINDOW_WIDTH - (BRICKS_PER_ROW - 1) * BRICK_GAP) / BRICKS_PER_ROW;
-    private static final int BRICK_HEIGHT = 8;
-    private static final int DISTANCE_TO_FIRST_BRICK = 100;
-    private Object rect;
+    private static final int BRICK_HEIGHT = 20;
+    private static final int DISTANCE_TO_FIRST_BRICK = 50;
+    private static final int MAX_SPEED = 10;
 
 
     public void run(){
@@ -47,7 +47,7 @@ public class mainGameClass extends GraphicsProgram {
                 pause(20);
             }
 
-            while (gameEnded && ball == null) {
+            while (gameEnded) {
                 replayScreen();
                 pause(50);
             }
@@ -277,20 +277,20 @@ public class mainGameClass extends GraphicsProgram {
         перевірка, чи натискає користувач на кнопки на мейн меню скріні
          */
 
-        if(buttonRules!= null && buttonRules.contains(e.getX(), e.getY())){
-            rulesScreen();
-        }
-        else if(buttonLevel1 != null && buttonLevel1.contains(e.getX(), e.getY())){
+        if(buttonLevel1 != null && buttonLevel1.isVisible() && buttonLevel1.contains(e.getX(), e.getY())) {
             level1();
+        } else if(buttonRules != null && buttonRules.isVisible() && buttonRules.contains(e.getX(), e.getY())) {
+            if (rulesScreen != null) startScreen();
+            else rulesScreen();
         }
-
         if (replayButton != null && replayButton.contains(e.getX(), e.getY())){
+            removeReplayScreen();
             level1();
+        } else if(mainMenuButton != null && mainMenuButton.contains(e.getX(), e.getY())){
             removeReplayScreen();
-        }
-        else if(mainMenuButton != null && mainMenuButton.contains(e.getX(), e.getY())){
             startScreen();
-            removeReplayScreen();
+            gameStarted = false;
+            gameEnded = false;
         }
 
 //        if(buttonLevel2.contains(e.getX(), e.getY())){
@@ -311,6 +311,7 @@ public class mainGameClass extends GraphicsProgram {
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
             startScreen();
             removeReplayScreen();
+            gameStarted = false;
         }
     }
 
@@ -325,6 +326,15 @@ public class mainGameClass extends GraphicsProgram {
         level1Screen.setFillColor(new Color(20, 33, 50));
         level1Screen.setFilled(true);
 
+        livesAmount = 3;
+        bricksAmount = BRICK_ROWS * BRICKS_PER_ROW;
+        verticalBallSpeed = 5;
+        horizontalBallSpeed = 0;
+        speedUpBonus = null;
+        slowDownBonus = null;
+        paddleBigBonus = null;
+        paddleSmallBonus = null;
+        secretBonus = null;
         add(level1Screen);
         drawHearts();
         drawBricks();
@@ -373,7 +383,13 @@ public class mainGameClass extends GraphicsProgram {
             gameEnded = true;
             return;
         }
-        ball.setLocation(WINDOW_WIDTH / 2.0, WINDOW_HEIGHT / 2.0);
+        if(ball != null) {
+            ball.setLocation(WINDOW_WIDTH / 2.0 - BALL_DIAMETER/2.0, WINDOW_HEIGHT / 2.0);
+            paddleBox.setLocation(WINDOW_WIDTH/2.0 - paddleBox.getWidth()/2.0, WINDOW_HEIGHT - paddleBox.getHeight());
+            verticalBallSpeed = Math.abs(verticalBallSpeed);
+            horizontalBallSpeed = 0;
+            pause(1000);
+        }
     }
 
     private GObject getCollidingObject() {
@@ -381,114 +397,23 @@ public class mainGameClass extends GraphicsProgram {
         double y = ball.getY();
 
         GObject obj = getElementAt(x, y);
-        if (obj != null) return obj;
+        if (obj == null) obj = getElementAt(x + BALL_DIAMETER, y);
+        if (obj == null) obj = getElementAt(x, y + BALL_DIAMETER);
+        if (obj == null) obj = getElementAt(x + BALL_DIAMETER, y + BALL_DIAMETER);
 
-        obj = getElementAt(x + BALL_DIAMETER, y);
-        if (obj != null) return obj;
-
-        obj = getElementAt(x, y + BALL_DIAMETER);
-        if (obj != null) return obj;
-
-        obj = getElementAt(x + BALL_DIAMETER, y + BALL_DIAMETER);
-        if (obj != null) return obj;
-
-        return null;
-    }
-
-    private GObject getCollidingObjectForBonusesSpeed() {
-        if (speedUpBonus != null) {
-            double x = speedUpBonus.getX();
-            double y = speedUpBonus.getY();
-
-            GObject obj = getElementAt(x, y);
-            if (obj != null) return obj;
-
-            obj = getElementAt(x + BALL_DIAMETER, y);
-            if (obj != null) return obj;
-
-            obj = getElementAt(x, y + BALL_DIAMETER);
-            if (obj != null) return obj;
-
-            obj = getElementAt(x + BALL_DIAMETER, y + BALL_DIAMETER);
-            if (obj != null) return obj;
+        if (obj != null) {
+            if (obj == level1Screen || obj == level2Screen || obj == level3Screen) return null;
+            if (obj == speedUpBonus ||
+                    obj == slowDownBonus ||
+                    obj == paddleBigBonus ||
+                    obj == paddleSmallBonus ||
+                    obj == secretBonus)
+            {
+                return null;
+            }
+            if (obj instanceof GLabel) return null;
         }
-        return null;
-    }
-    private GObject getCollidingObjectForBonusesSlow(){
-        if (slowDownBonus != null) {
-            double x = slowDownBonus.getX();
-            double y = slowDownBonus.getY();
-
-            GObject obj = getElementAt(x, y);
-            if (obj != null) return obj;
-
-            obj = getElementAt(x + BALL_DIAMETER, y);
-            if (obj != null) return obj;
-
-            obj = getElementAt(x, y + BALL_DIAMETER);
-            if (obj != null) return obj;
-
-            obj = getElementAt(x + BALL_DIAMETER, y + BALL_DIAMETER);
-            if (obj != null) return obj;
-        }
-        return null;
-    }
-    private GObject getCollidingObjectForBonusesBig(){
-        if (paddleBigBonus != null) {
-            double x = paddleBigBonus.getX();
-            double y = paddleBigBonus.getY();
-
-            GObject obj = getElementAt(x, y);
-            if (obj != null) return obj;
-
-            obj = getElementAt(x + BALL_DIAMETER, y);
-            if (obj != null) return obj;
-
-            obj = getElementAt(x, y + BALL_DIAMETER);
-            if (obj != null) return obj;
-
-            obj = getElementAt(x + BALL_DIAMETER, y + BALL_DIAMETER);
-            if (obj != null) return obj;
-        }
-        return null;
-    }
-    private GObject getCollidingObjectForBonusesSmall(){
-        if (paddleSmallBonus != null) {
-            double x = paddleSmallBonus.getX();
-            double y = paddleSmallBonus.getY();
-
-            GObject obj = getElementAt(x, y);
-            if (obj != null) return obj;
-
-            obj = getElementAt(x + BALL_DIAMETER, y);
-            if (obj != null) return obj;
-
-            obj = getElementAt(x, y + BALL_DIAMETER);
-            if (obj != null) return obj;
-
-            obj = getElementAt(x + BALL_DIAMETER, y + BALL_DIAMETER);
-            if (obj != null) return obj;
-        }
-        return null;
-    }
-    private GObject getCollidingObjectForBonusesSpecial(){
-        if (secretBonus != null) {
-            double x = secretBonus.getX();
-            double y = secretBonus.getY();
-
-            GObject obj = getElementAt(x, y);
-            if (obj != null) return obj;
-
-            obj = getElementAt(x + BALL_DIAMETER, y);
-            if (obj != null) return obj;
-
-            obj = getElementAt(x, y + BALL_DIAMETER);
-            if (obj != null) return obj;
-
-            obj = getElementAt(x + BALL_DIAMETER, y + BALL_DIAMETER);
-            if (obj != null) return obj;
-        }
-        return null;
+        return obj;
     }
 
     private boolean isBrick(GRect rect) {
@@ -498,28 +423,6 @@ public class mainGameClass extends GraphicsProgram {
         double y = rect.getY();
         double top = (heart1.getY() + heart1.getHeight()) + DISTANCE_TO_FIRST_BRICK;
         double bottom = top + BRICK_ROWS * (BRICK_GAP + BRICK_HEIGHT);
-
-        return  y >= top && y <= bottom;
-    }
-
-    private boolean isBonus(GOval oval) {
-        if (oval == null) return false;
-        if (oval == ball) return false;
-
-        double y = oval.getY();
-        double top = oval.getY();
-        double bottom = oval.getY() + oval.getHeight();
-
-        return  y >= top && y <= bottom;
-    }
-
-    private boolean isPaddlo(GRect rect) {
-        if (rect == null) return false;
-        if (rect == level1Screen || rect.getY() <= brick.getY() + brick.getHeight()) return false;
-
-        double y = rect.getY();
-        double top = rect.getY();
-        double bottom = rect.getY() + rect.getHeight();
 
         return  y >= top && y <= bottom;
     }
@@ -570,15 +473,14 @@ public class mainGameClass extends GraphicsProgram {
                 gameEnded = true;
                 return;
             }
-            // це зазорчик в декілька пікселя, шоб не провалювався м'ячик
-            if (verticalBallSpeed < 0) {
-                ball.setLocation(ball.getX(), ball.getY() - collidedObj.getHeight() * 0.25);
-            } else {
-                ball.setLocation(ball.getX(), ball.getY() + collidedObj.getHeight() * 0.25);
-            }
         } else if (collidedObj != null && collidedObj == paddleBox) {
-            ball.setLocation(ball.getX(), ball.getY() - collidedObj.getHeight() * 0.25);
+            ball.setLocation(ball.getX(), paddleBox.getY() - BALL_DIAMETER - 2);
             verticalBallSpeed = -Math.abs(verticalBallSpeed);
+            horizontalBallSpeed = rnd.nextInt(-4, 4);
+            if (horizontalBallSpeed == 0) {
+                if (rnd.nextBoolean()) horizontalBallSpeed = 3;
+                else horizontalBallSpeed = -3;
+            }
         }
     }
 
@@ -595,107 +497,104 @@ public class mainGameClass extends GraphicsProgram {
     }
 
     private void bonusDistribute(){
-        bonusRandomizer = rnd.nextInt(0, 6);
-        if (bonusRandomizer == 1){
-            speedUpBonus();
-        }
-        if (bonusRandomizer == 2){
-            slowDownBonus();
-        }
-        if (bonusRandomizer == 3){
-            bigPaddleBonus();
-        }
-        if (bonusRandomizer == 4){
-            littlePaddleBonus();
-        }
-        if (bonusRandomizer == 5){
-            secretBonus();
-        }
+        bonusRandomizer = rnd.nextInt(0, 6); // increased range so bonuses aren't too frequent
+
+        if (bonusRandomizer == 1 && speedUpBonus == null) speedUpBonus();
+        else if (bonusRandomizer == 2 && slowDownBonus == null) slowDownBonus();
+        else if (bonusRandomizer == 3 && paddleBigBonus == null) bigPaddleBonus();
+        else if (bonusRandomizer == 4 && paddleSmallBonus == null) littlePaddleBonus();
+        else if (bonusRandomizer == 5 && secretBonus == null) secretBonus();
     }
 
 
     private void speedUpBonus(){
         speedUpBonus = new GImage("speedUpBubble.png");
-        speedUpBonus.setSize(BALL_DIAMETER, BALL_DIAMETER);
+        speedUpBonus.setSize(BALL_DIAMETER * 1.5, BALL_DIAMETER * 1.5);
         add(speedUpBonus, ball.getX(), ball.getY());
     }
     private void slowDownBonus(){
         slowDownBonus = new GImage("slowDownBubble.png");
-        slowDownBonus.setSize(BALL_DIAMETER, BALL_DIAMETER);
+        slowDownBonus.setSize(BALL_DIAMETER * 1.5, BALL_DIAMETER * 1.5);
         add(slowDownBonus, ball.getX(), ball.getY());
     }
     private void bigPaddleBonus(){
         paddleBigBonus = new GImage("bigBubble.png");
-        paddleBigBonus.setSize(BALL_DIAMETER, BALL_DIAMETER);
+        paddleBigBonus.setSize(BALL_DIAMETER * 1.5, BALL_DIAMETER * 1.5);
         add(paddleBigBonus, ball.getX(), ball.getY());
     }
     private void littlePaddleBonus(){
         paddleSmallBonus = new GImage("littleBubble.png");
-        paddleSmallBonus.setSize(BALL_DIAMETER, BALL_DIAMETER);
+        paddleSmallBonus.setSize(BALL_DIAMETER * 1.5, BALL_DIAMETER * 1.5);
         add(paddleSmallBonus, ball.getX(), ball.getY());
     }
     private void secretBonus(){
         secretBonus = new GImage("heart.png");
-        secretBonus.setSize(BALL_DIAMETER, BALL_DIAMETER);
+        secretBonus.setSize(BALL_DIAMETER * 1.5, BALL_DIAMETER * 1.5);
         add(secretBonus, ball.getX(), ball.getY());
     }
 
 
 
-    private void bonusMovement(){
-        GObject collidedObjForBonusesSpeed = getCollidingObjectForBonusesSpeed();
-        GObject collidedObjForBonusesSlow = getCollidingObjectForBonusesSlow();
-        GObject collidedObjForBonusesBig = getCollidingObjectForBonusesBig();
-        GObject collidedObjForBonusesSmall = getCollidingObjectForBonusesSmall();
-        GObject collidedObjForBonusesSpecial = getCollidingObjectForBonusesSpecial();
+    private void bonusMovement() {
+        if (speedUpBonus != null) speedUpBonus.move(0, bonusVSpeed);
+        if (slowDownBonus != null) slowDownBonus.move(0, bonusVSpeed);
+        if (paddleBigBonus != null) paddleBigBonus.move(0, bonusVSpeed);
+        if (paddleSmallBonus != null) paddleSmallBonus.move(0, bonusVSpeed);
+        if (secretBonus != null) secretBonus.move(0, bonusVSpeed);
 
-        if (speedUpBonus != null && getCollidingObjectForBonusesSpeed() != null && getCollidingObjectForBonusesSpeed() == level1Screen) {
-            speedUpBonus.move(0, bonusVSpeed);
-        }
-        if (slowDownBonus != null && getCollidingObjectForBonusesSlow() != null && getCollidingObjectForBonusesSlow() == level1Screen) {
-            slowDownBonus.move(0, bonusVSpeed);
-        }
-        if (paddleBigBonus != null && getCollidingObjectForBonusesBig() != null && getCollidingObjectForBonusesBig() == level1Screen) {
-            paddleBigBonus.move(0, bonusVSpeed);
-        }
-        if (paddleSmallBonus != null && getCollidingObjectForBonusesSmall() != null && getCollidingObjectForBonusesSmall() == level1Screen) {
-            paddleSmallBonus.move(0, bonusVSpeed);
-        }
-        if (secretBonus != null && getCollidingObjectForBonusesSpecial() != null && getCollidingObjectForBonusesSpecial() == level1Screen) {
-            secretBonus.move(0, bonusVSpeed);
-        }
-
-
-        if (collidedObjForBonusesSpeed != null && collidedObjForBonusesSpeed == paddleBox && bonusRandomizer == 1) {
+        if (speedUpBonus != null && speedUpBonus.getBounds().intersects(paddleBox.getBounds())) {
             remove(speedUpBonus);
             speedUpBonus = null;
             verticalBallSpeed *= 1.3;
         }
-        else if (collidedObjForBonusesSlow != null && collidedObjForBonusesSlow == paddleBox && bonusRandomizer == 2) {
+        else if (slowDownBonus != null && slowDownBonus.getBounds().intersects(paddleBox.getBounds())) {
             remove(slowDownBonus);
             slowDownBonus = null;
             verticalBallSpeed /= 1.3;
         }
-        else if (collidedObjForBonusesSmall != null && collidedObjForBonusesSmall == paddleBox && bonusRandomizer == 3) {
-            paddleBox.setSize(paddleBox.getWidth()/2, paddleBox.getHeight());
+        else if (paddleBigBonus != null && paddleBigBonus.getBounds().intersects(paddleBox.getBounds())) {
+            remove(paddleBigBonus);
+            paddleBigBonus = null;
+            if (paddleBox.getWidth() < WINDOW_WIDTH / 2) {
+                paddleBox.setSize(paddleBox.getWidth() * 2, paddleBox.getHeight());
+            }
+        }
+        else if (paddleSmallBonus != null && paddleSmallBonus.getBounds().intersects(paddleBox.getBounds())) {
+            remove(paddleSmallBonus);
+            paddleSmallBonus = null;
+            if (paddleBox.getWidth() > 20) {
+                paddleBox.setSize(paddleBox.getWidth() / 2, paddleBox.getHeight());
+            }
+        }
+        else if (secretBonus != null && secretBonus.getBounds().intersects(paddleBox.getBounds())) {
+            remove(secretBonus);
+            secretBonus = null;
+            if (livesAmount < 3) {
+                livesAmount++;
+                if (livesAmount == 2) add(heart2);
+                if (livesAmount == 3) add(heart3);
+            }
+        }
 
+        if (speedUpBonus != null && speedUpBonus.getY() > WINDOW_HEIGHT) {
+            remove(speedUpBonus);
+            speedUpBonus = null;
         }
-        else if (collidedObjForBonusesBig != null && collidedObjForBonusesBig == paddleBox && bonusRandomizer == 4) {
-            paddleBox.setSize(paddleBox.getWidth()*2, paddleBox.getHeight());
+        if (slowDownBonus != null && slowDownBonus.getY() > WINDOW_HEIGHT) {
+            remove(slowDownBonus);
+            slowDownBonus = null;
         }
-        else if (collidedObjForBonusesSpecial != null && collidedObjForBonusesSpecial == paddleBox && bonusRandomizer == 5) {
-            if (livesAmount == 1){
-                livesAmount++;
-                add(heart2);
-            }
-            else if (livesAmount == 2){
-                livesAmount++;
-                add(heart3);
-            }
-            else if (livesAmount == 0) {
-                livesAmount++;
-                add(heart1);
-            }
+        if (paddleBigBonus != null && paddleBigBonus.getY() > WINDOW_HEIGHT) {
+            remove(paddleBigBonus);
+            paddleBigBonus = null;
+        }
+        if (paddleSmallBonus != null && paddleSmallBonus.getY() > WINDOW_HEIGHT) {
+            remove(paddleSmallBonus);
+            paddleSmallBonus = null;
+        }
+        if (secretBonus != null && secretBonus.getY() > WINDOW_HEIGHT) {
+            remove(secretBonus);
+            secretBonus = null;
         }
     }
 
@@ -745,10 +644,8 @@ public class mainGameClass extends GraphicsProgram {
 
     private boolean gameEnded;
     private boolean gameStarted;
-    private double verticalBallSpeed = 5;
+    private double verticalBallSpeed = 3;
     private int horizontalBallSpeed = rnd.nextInt(-3,3);
-
-    int intlevel1;
 
     GOval heart1;
     GOval heart2;
