@@ -98,6 +98,7 @@ public class mainGameClass extends GraphicsProgram {
         double startY = (heart1.getY() + heart1.getHeight()) + DISTANCE_TO_FIRST_BRICK;
         double x;
         double y;
+        bricksAmount = 0;
         for (int i = 0; i < BRICK_ROWS; i++) {
             for (int j = 0; j < BRICKS_PER_ROW; j++) {
                 x = startX + j * (BRICK_GAP + BRICK_WIDTH);
@@ -121,6 +122,7 @@ public class mainGameClass extends GraphicsProgram {
                     brick.setFillColor(Color.CYAN);
                 }
                 add(brick);
+                bricksAmount++;
             }
         }
     }
@@ -278,7 +280,7 @@ public class mainGameClass extends GraphicsProgram {
             replayButton.setFillColor(new Color(57, 73, 171));
             mainMenuButton.setFillColor(new Color(57, 73, 171));
 
-            if (livesAmount > 0 && gameEnded && bricksAmount == 0 && ball != null) {
+            if (bricksAmount <= 0) {
                 statusLabel = new GLabel("VICTORY!");
                 statusLabel.setColor(Color.GREEN);
             } else {
@@ -332,16 +334,25 @@ public class mainGameClass extends GraphicsProgram {
 
     public void mouseClicked(MouseEvent e){
         if (buttonLevel1 != null && buttonLevel1.isVisible() && buttonLevel1.contains(e.getX(), e.getY())) {
-            startLevel(1);
             currentLevel = 1;
+            startLevel(1);
+            buttonLevel1 = null;
+            buttonLevel2 = null;
+            buttonLevel3 = null;
         }
         else if (buttonLevel2 != null && buttonLevel2.isVisible() && buttonLevel2.contains(e.getX(), e.getY())) {
-            startLevel(2);
             currentLevel = 2;
+            startLevel(2);
+            buttonLevel1 = null;
+            buttonLevel2 = null;
+            buttonLevel3 = null;
         }
         else if (buttonLevel3 != null && buttonLevel3.isVisible() && buttonLevel3.contains(e.getX(), e.getY())) {
-            startLevel(3);
             currentLevel = 3;
+            startLevel(3);
+            buttonLevel1 = null;
+            buttonLevel2 = null;
+            buttonLevel3 = null;
         }
         else if (buttonRules != null && buttonRules.isVisible() && buttonRules.contains(e.getX(), e.getY())) {
             if (rulesScreen != null) startScreen();
@@ -387,28 +398,22 @@ public class mainGameClass extends GraphicsProgram {
 
     private void startLevel(int level) {
         removeAll();
+        background = new GRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+        background.setFillColor(new Color(20, 33, 50));
+        background.setFilled(true);
+        add(background);
+
         if (level == 1) {
-            level1Screen = new GRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-            level1Screen.setFillColor(new Color(20, 33, 50));
-            level1Screen.setFilled(true);
-            add(level1Screen);
             livesAmount = 3;
             verticalBallSpeed = 5;
         } else if (level == 2) {
-            level2Screen = new GRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-            level2Screen.setFillColor(new Color(20, 33, 50));
-            level2Screen.setFilled(true);
-            add(level2Screen);
             livesAmount = 2;
             verticalBallSpeed = 7;
         } else if (level == 3) {
-            level3Screen = new GRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-            level3Screen.setFillColor(new Color(20, 33, 50));
-            level3Screen.setFilled(true);
-            add(level3Screen);
             livesAmount = 1;
             verticalBallSpeed = 8;
         }
+
         horizontalBallSpeed = 0;
         score = 0;
         speedUpBonus = null;
@@ -514,7 +519,7 @@ public class mainGameClass extends GraphicsProgram {
         if (obj == null) obj = getElementAt(x + BALL_DIAMETER, y + BALL_DIAMETER);
 
         if (obj != null) {
-            if (obj == level1Screen || obj == level2Screen || obj == level3Screen) return null;
+            if (obj == background) return null;
             if (obj == speedUpBonus ||
                     obj == slowDownBonus ||
                     obj == paddleBigBonus ||
@@ -536,7 +541,7 @@ public class mainGameClass extends GraphicsProgram {
 
     private boolean isBrick(GRect rect) {
         if (rect == null) return false;
-        if (rect == paddleBox || rect == level1Screen || rect == level2Screen || rect == level3Screen) return false;
+        if (rect == paddleBox || rect == background) return false;
 
         double y = rect.getY();
         double top = (heart1.getY() + heart1.getHeight()) + DISTANCE_TO_FIRST_BRICK;
@@ -553,14 +558,14 @@ public class mainGameClass extends GraphicsProgram {
     private void paddle(){
         double width;
         if (currentLevel == 1) {
-            width = WINDOW_WIDTH / 10.0;
-        } else if (currentLevel == 2){
-            width = WINDOW_WIDTH / 14.0;
+            width = WINDOW_WIDTH * 0.2;
+        } else if (currentLevel == 2) {
+            width = WINDOW_WIDTH * 0.14;
         } else {
-            width = WINDOW_WIDTH / 17.0;
+            width = WINDOW_WIDTH * 0.10;
         }
 
-        paddleBox = new GRect((WINDOW_WIDTH - width) / 2,WINDOW_HEIGHT - (double) WINDOW_HEIGHT /20, (double) WINDOW_WIDTH /10, (double) WINDOW_HEIGHT /20);
+        paddleBox = new GRect((WINDOW_WIDTH - width) / 2, WINDOW_HEIGHT - (double) WINDOW_HEIGHT / 20, width, (double) WINDOW_HEIGHT / 20);
         paddleBox.setFilled(true);
         paddleBox.setFillColor(Color.black);
         paddleBox.setColor(Color.white);
@@ -614,7 +619,6 @@ public class mainGameClass extends GraphicsProgram {
             verticalBallSpeed = -verticalBallSpeed;
             if (bricksAmount == 0) {
                 gameEnded = true;
-                return;
             }
         } else if (collidedObj != null && collidedObj == paddleBox) {
             ball.setLocation(ball.getX(), paddleBox.getY() - BALL_DIAMETER - 2);
@@ -745,8 +749,33 @@ public class mainGameClass extends GraphicsProgram {
             secretBonus = null;
             if (livesAmount < 3) {
                 livesAmount++;
-                if (livesAmount == 2) add(heart2);
-                if (livesAmount == 3) add(heart3);
+                if (heart1 != null) remove(heart1);
+                if (heart2 != null) remove(heart2);
+                if (heart3 != null) remove(heart3);
+
+                drawHearts();
+                double y = 20;
+                int heartSize = 20;
+                int gap = 5;
+                double startX = WINDOW_WIDTH - (heartSize + gap) * 3;
+                if (livesAmount == 2) {
+                    if (heart2 != null) {
+                        remove(heart2);
+                    }
+                    heart2 = new GOval(startX + heartSize + gap, y, heartSize, heartSize);
+                    heart2.setFilled(true);
+                    heart2.setColor(Color.RED);
+                    add(heart2);
+                }
+                else if (livesAmount == 3) {
+                    if (heart3 != null) {
+                        remove(heart3);
+                    }
+                    heart3 = new GOval(startX + (heartSize + gap) * 2, y, heartSize, heartSize);
+                    heart3.setFilled(true);
+                    heart3.setColor(Color.RED);
+                    add(heart3);
+                }
             }
         }
 
@@ -778,7 +807,7 @@ public class mainGameClass extends GraphicsProgram {
     RandomGenerator rnd = new RandomGenerator();
     Clip backgroundMusic;
     private GLabel statusLabel;
-    private int bricksAmount = BRICKS_PER_ROW * BRICK_ROWS;
+    private int bricksAmount;
     private int bonusRandomizer = 0;
 
     private int bonusVSpeed = 3;
@@ -813,11 +842,7 @@ public class mainGameClass extends GraphicsProgram {
     private GLabel mainMenuLabel;
     private GLabel replayLabel;
 
-
-    private GRect level1Screen;
-    private GRect level2Screen;
-    private GRect level3Screen;
-
+    private GRect background;
     private boolean gameEnded;
     private boolean gameStarted;
     private double verticalBallSpeed = 3;
