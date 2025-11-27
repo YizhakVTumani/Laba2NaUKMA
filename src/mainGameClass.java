@@ -2,9 +2,12 @@ import acm.graphics.*;
 import acm.program.*;
 import acm.util.RandomGenerator;
 
+import javax.sound.sampled.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 //Author: Hella Nikita, Hrokh Arsenii
@@ -32,7 +35,7 @@ public class mainGameClass extends GraphicsProgram {
         this.setSize(WINDOW_WIDTH + 17, WINDOW_HEIGHT + 60); // на вінді бордери такі, можеш міняти під мак, але запиши це в коментах: Windows(+17; +60)
         addKeyListeners();
         addMouseListeners();
-
+        playBgMusic();
 
         startScreen();
 
@@ -51,6 +54,21 @@ public class mainGameClass extends GraphicsProgram {
                 replayScreen();
                 pause(50);
             }
+        }
+    }
+
+    private void playBgMusic() {
+        try {
+            File musicPath = new File("Where I am From - Topher Mohr and Alex Elena.wav");
+            if (musicPath.exists()) {
+                AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicPath);
+                backgroundMusic = AudioSystem.getClip();
+                backgroundMusic.open(audioInput);
+                backgroundMusic.loop(Clip.LOOP_CONTINUOUSLY);
+                backgroundMusic.start();
+            }
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            println(e.getMessage());
         }
     }
 
@@ -330,6 +348,10 @@ public class mainGameClass extends GraphicsProgram {
         bricksAmount = BRICK_ROWS * BRICKS_PER_ROW;
         verticalBallSpeed = 5;
         horizontalBallSpeed = 0;
+        score = 0;
+        scoreLabel = new GLabel("Score: 0");
+        scoreLabel.setFont("SansSerif-Bold-20");
+        scoreLabel.setColor(Color.WHITE);
         speedUpBonus = null;
         slowDownBonus = null;
         paddleBigBonus = null;
@@ -340,6 +362,8 @@ public class mainGameClass extends GraphicsProgram {
         drawBricks();
         paddle();
         ball();
+
+        add(scoreLabel, 20, 40);
         gameEnded = false;
         gameStarted = true;
 
@@ -467,6 +491,8 @@ public class mainGameClass extends GraphicsProgram {
         if (collidedObj != null && collidedObj instanceof GRect && isBrick((GRect) collidedObj)) {
             remove(collidedObj);
             bricksAmount--;
+            score++;
+            scoreLabel.setLabel("Score: " + score);
             bonusDistribute();
             verticalBallSpeed = -verticalBallSpeed;
             if (bricksAmount == 0) {
@@ -546,6 +572,7 @@ public class mainGameClass extends GraphicsProgram {
             remove(speedUpBonus);
             speedUpBonus = null;
             verticalBallSpeed *= 1.3;
+            if (verticalBallSpeed > MAX_SPEED) verticalBallSpeed = MAX_SPEED;
         }
         else if (slowDownBonus != null && slowDownBonus.getBounds().intersects(paddleBox.getBounds())) {
             remove(slowDownBonus);
@@ -598,9 +625,10 @@ public class mainGameClass extends GraphicsProgram {
         }
     }
 
-
+    private int score;
+    private GLabel scoreLabel;
     RandomGenerator rnd = new RandomGenerator();
-
+    Clip backgroundMusic;
     private GLabel statusLabel;
     private int bricksAmount = BRICKS_PER_ROW * BRICK_ROWS;
     private int bonusRandomizer = 0;
