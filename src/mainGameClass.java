@@ -14,6 +14,13 @@ import java.util.Random;
 //File: mainGameClass.java
 
 
+/**
+ * Main game class for the Breakout-style game.
+ * Manages start screen, level selection, gameplay, bonuses,
+ * collision handling, hearts, and end-of-game screens.
+ * Extends GraphicsProgram from the ACM library.
+ */
+
 public class mainGameClass extends GraphicsProgram {
 
     private static final int WINDOW_WIDTH = 800;
@@ -30,6 +37,11 @@ public class mainGameClass extends GraphicsProgram {
     private static final int DISTANCE_TO_FIRST_BRICK = 50;
     private static final int MAX_SPEED = 12;
 
+    /**
+     * Main game loop.
+     * Controls transitions between start screen, gameplay, and replay screen.
+     * Initializes listeners and background music.
+     */
 
     public void run(){
         this.setSize(WINDOW_WIDTH + 17, WINDOW_HEIGHT + 60); // на вінді бордери такі, можеш міняти під мак, але запиши це в коментах: Windows(+17; +60)
@@ -57,6 +69,10 @@ public class mainGameClass extends GraphicsProgram {
         }
     }
 
+    /**
+     * Plays background music from a .wav file in an infinite loop.
+     */
+
     private void playBgMusic() {
         try {
             File musicPath = new File("Where I am From - Topher Mohr and Alex Elena.wav");
@@ -71,6 +87,11 @@ public class mainGameClass extends GraphicsProgram {
             println(e.getMessage());
         }
     }
+
+    /**
+     * Draws all bricks on the screen using predefined row count,
+     * brick sizes, spacing, and color rules.
+     */
 
     private void drawBricks() {
         double startX = getX();
@@ -103,6 +124,12 @@ public class mainGameClass extends GraphicsProgram {
             }
         }
     }
+
+    /**
+     * Displays the main start menu with buttons:
+     * Level 1, Level 2, Level 3, and Rules.
+     * Handles positioning of graphical elements.
+     */
 
     public void startScreen(){
         startScreenCanvas = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
@@ -154,6 +181,10 @@ public class mainGameClass extends GraphicsProgram {
         add(buttonRulesText, buttonRules.getX() + buttonRules.getWidth()/2 - buttonRulesText.getWidth()/2, buttonRules.getY() +  buttonRules.getHeight()/2);
 
     }
+
+    /**
+     * Displays the rules screen with game instructions and descriptions.
+     */
 
     private void rulesScreen(){
         rulesScreen = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
@@ -227,6 +258,11 @@ public class mainGameClass extends GraphicsProgram {
 
     }
 
+    /**
+     * Displays the replay screen after the level is finished or lost.
+     * Shows replay button and return-to-menu button.
+     */
+
     private void replayScreen(){
         if (replayScreen == null){
             replayScreen = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
@@ -269,6 +305,10 @@ public class mainGameClass extends GraphicsProgram {
         }
     }
 
+    /**
+     * Removes all elements from the replay screen.
+     */
+
     private void removeReplayScreen(){
         if (replayScreen != null){
             remove(replayButton);
@@ -284,6 +324,11 @@ public class mainGameClass extends GraphicsProgram {
         }
 
     }
+
+    /**
+     * Handles mouse click events:
+     * level buttons, rules button, replay button, and menu button.
+     */
 
     public void mouseClicked(MouseEvent e){
         if (buttonLevel1 != null && buttonLevel1.isVisible() && buttonLevel1.contains(e.getX(), e.getY())) {
@@ -314,6 +359,11 @@ public class mainGameClass extends GraphicsProgram {
         }
     }
 
+    /**
+     * Handles keyboard controls: left and right arrow keys,
+     * and ESC for returning to the main menu.
+     */
+
     public void keyPressed(KeyEvent e){
         if (e.getKeyCode() == KeyEvent.VK_LEFT){
             paddleMovementLeft();
@@ -327,6 +377,13 @@ public class mainGameClass extends GraphicsProgram {
             gameStarted = false;
         }
     }
+
+    /**
+     * Initializes the selected level.
+     * Sets ball speed, paddle size, lives, and draws all objects.
+     *
+     * @param level chosen difficulty level (1–3)
+     */
 
     private void startLevel(int level) {
         removeAll();
@@ -374,6 +431,10 @@ public class mainGameClass extends GraphicsProgram {
         gameStarted = true;
     }
 
+    /**
+     * Draws heart icons representing player lives.
+     */
+
     private void drawHearts() {
         int heartSize = 20;
         int gap = 5;
@@ -401,6 +462,11 @@ public class mainGameClass extends GraphicsProgram {
             heart3 = null;
         }
     }
+
+    /**
+     * Handles life loss: removes a heart, resets ball and paddle,
+     * and ends the game when no lives remain.
+     */
 
     private void handleLifeLoss() {
         livesAmount--;
@@ -432,6 +498,12 @@ public class mainGameClass extends GraphicsProgram {
         }
     }
 
+    /**
+     * Checks for collision around the ball.
+     *
+     * @return the colliding GObject or null if no collision is detected
+     */
+
     private GObject getCollidingObject() {
         double x = ball.getX();
         double y = ball.getY();
@@ -456,6 +528,12 @@ public class mainGameClass extends GraphicsProgram {
         return obj;
     }
 
+    /**
+     * Checks if the provided GRect is a brick.
+     *
+     * @return true if the object is a brick
+     */
+
     private boolean isBrick(GRect rect) {
         if (rect == null) return false;
         if (rect == paddleBox || rect == level1Screen || rect == level2Screen || rect == level3Screen) return false;
@@ -466,6 +544,11 @@ public class mainGameClass extends GraphicsProgram {
 
         return  y >= top && y <= bottom;
     }
+
+    /**
+     * Creates and draws the paddle.
+     * Paddle size depends on level difficulty.
+     */
 
     private void paddle(){
         double width;
@@ -484,6 +567,10 @@ public class mainGameClass extends GraphicsProgram {
         add(paddleBox);
     }
 
+    /**
+     * Creates and draws the ball.
+     */
+
     private void ball(){
         ball = new GOval(WINDOW_WIDTH/2, WINDOW_HEIGHT/2, BALL_DIAMETER, BALL_DIAMETER );
         ball.setFilled(true);
@@ -491,6 +578,11 @@ public class mainGameClass extends GraphicsProgram {
         ball.setColor(Color.white);
         add(ball);
     }
+
+    /**
+     * Handles movement of the ball, wall bouncing, paddle collisions,
+     * brick removal, life loss, and winning condition.
+     */
 
     private void ballMovement(){
         ball.move(horizontalBallSpeed, verticalBallSpeed);
@@ -535,17 +627,30 @@ public class mainGameClass extends GraphicsProgram {
         }
     }
 
+    /**
+     * Moves the paddle to the right.
+     */
+
     private void paddleMovementRight(){
         if(paddleBox != null && paddleBox.getX() + paddleBox.getWidth() < WINDOW_WIDTH){
             paddleBox.move(PADDLE_SPEED, 0);
         }
     }
 
+    /**
+     * Moves the paddle to the left.
+     */
+
     private void paddleMovementLeft(){
         if(paddleBox != null && paddleBox.getX() > 0){
             paddleBox.move(-PADDLE_SPEED, 0);
         }
     }
+
+    /**
+     * Randomly spawns a bonus object after a brick is destroyed.
+     * Bonus type depends on level.
+     */
 
     private void bonusDistribute(){
         bonusRandomizer = rnd.nextInt(0, 6);
@@ -593,6 +698,10 @@ public class mainGameClass extends GraphicsProgram {
     }
 
 
+    /**
+     * Moves bonus objects downward and applies bonus effects
+     * when collected by the paddle.
+     */
 
     private void bonusMovement() {
         if (speedUpBonus != null) speedUpBonus.move(0, bonusVSpeed);
