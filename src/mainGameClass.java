@@ -28,7 +28,7 @@ public class mainGameClass extends GraphicsProgram {
     private static final int BRICK_WIDTH = (WINDOW_WIDTH - (BRICKS_PER_ROW - 1) * BRICK_GAP) / BRICKS_PER_ROW;
     private static final int BRICK_HEIGHT = 20;
     private static final int DISTANCE_TO_FIRST_BRICK = 50;
-    private static final int MAX_SPEED = 10;
+    private static final int MAX_SPEED = 12;
 
 
     public void run(){
@@ -138,10 +138,6 @@ public class mainGameClass extends GraphicsProgram {
         buttonLevel1Text.setColor(new  Color(255, 255, 255));
         buttonLevel2Text.setColor(new  Color(255, 255, 255));
         buttonLevel3Text.setColor(new  Color(255, 255, 255));
-
-
-
-
 
         add(startScreenCanvas);
         add(buttonLevel1);
@@ -290,33 +286,32 @@ public class mainGameClass extends GraphicsProgram {
     }
 
     public void mouseClicked(MouseEvent e){
-
-        /*
-        перевірка, чи натискає користувач на кнопки на мейн меню скріні
-         */
-
-        if(buttonLevel1 != null && buttonLevel1.isVisible() && buttonLevel1.contains(e.getX(), e.getY())) {
-            level1();
-        } else if(buttonRules != null && buttonRules.isVisible() && buttonRules.contains(e.getX(), e.getY())) {
+        if (buttonLevel1 != null && buttonLevel1.isVisible() && buttonLevel1.contains(e.getX(), e.getY())) {
+            startLevel(1);
+            currentLevel = 1;
+        }
+        else if (buttonLevel2 != null && buttonLevel2.isVisible() && buttonLevel2.contains(e.getX(), e.getY())) {
+            startLevel(2);
+            currentLevel = 2;
+        }
+        else if (buttonLevel3 != null && buttonLevel3.isVisible() && buttonLevel3.contains(e.getX(), e.getY())) {
+            startLevel(3);
+            currentLevel = 3;
+        }
+        else if (buttonRules != null && buttonRules.isVisible() && buttonRules.contains(e.getX(), e.getY())) {
             if (rulesScreen != null) startScreen();
             else rulesScreen();
         }
-        if (replayButton != null && replayButton.contains(e.getX(), e.getY())){
+        if (replayButton != null && replayButton.contains(e.getX(), e.getY())) {
             removeReplayScreen();
-            level1();
-        } else if(mainMenuButton != null && mainMenuButton.contains(e.getX(), e.getY())){
+            startLevel(currentLevel);
+        }
+        else if (mainMenuButton != null && mainMenuButton.contains(e.getX(), e.getY())) {
             removeReplayScreen();
             startScreen();
             gameStarted = false;
             gameEnded = false;
         }
-
-//        if(buttonLevel2.contains(e.getX(), e.getY())){
-//            level2();
-//        }
-//        if(buttonLevel3.contains(e.getX(), e.getY())){
-//            level3();
-//        }
     }
 
     public void keyPressed(KeyEvent e){
@@ -333,31 +328,42 @@ public class mainGameClass extends GraphicsProgram {
         }
     }
 
-    private void level1() {
-
-        remove(buttonLevel1);
-        remove(buttonLevel2);
-        remove(buttonLevel3);
-        remove(buttonRules);
-
-        level1Screen = new GRect(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
-        level1Screen.setFillColor(new Color(20, 33, 50));
-        level1Screen.setFilled(true);
-
-        livesAmount = 3;
-        bricksAmount = BRICK_ROWS * BRICKS_PER_ROW;
-        verticalBallSpeed = 5;
+    private void startLevel(int level) {
+        removeAll();
+        if (level == 1) {
+            level1Screen = new GRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+            level1Screen.setFillColor(new Color(20, 33, 50));
+            level1Screen.setFilled(true);
+            add(level1Screen);
+            livesAmount = 3;
+            verticalBallSpeed = 5;
+        } else if (level == 2) {
+            level2Screen = new GRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+            level2Screen.setFillColor(new Color(20, 33, 50));
+            level2Screen.setFilled(true);
+            add(level2Screen);
+            livesAmount = 2;
+            verticalBallSpeed = 7;
+        } else if (level == 3) {
+            level3Screen = new GRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+            level3Screen.setFillColor(new Color(20, 33, 50));
+            level3Screen.setFilled(true);
+            add(level3Screen);
+            livesAmount = 1;
+            verticalBallSpeed = 8;
+        }
         horizontalBallSpeed = 0;
         score = 0;
-        scoreLabel = new GLabel("Score: 0");
-        scoreLabel.setFont("SansSerif-Bold-20");
-        scoreLabel.setColor(Color.WHITE);
         speedUpBonus = null;
         slowDownBonus = null;
         paddleBigBonus = null;
         paddleSmallBonus = null;
         secretBonus = null;
-        add(level1Screen);
+
+        scoreLabel = new GLabel("Score: 0");
+        scoreLabel.setFont("SansSerif-Bold-20");
+        scoreLabel.setColor(Color.WHITE);
+
         drawHearts();
         drawBricks();
         paddle();
@@ -366,7 +372,6 @@ public class mainGameClass extends GraphicsProgram {
         add(scoreLabel, 20, 40);
         gameEnded = false;
         gameStarted = true;
-
     }
 
     private void drawHearts() {
@@ -379,39 +384,50 @@ public class mainGameClass extends GraphicsProgram {
         heart1.setFilled(true);
         heart1.setColor(Color.RED);
         add(heart1);
-
-        heart2 = new GOval(startX + heartSize + gap, y, heartSize, heartSize);
-        heart2.setFilled(true);
-        heart2.setColor(Color.RED);
-        add(heart2);
-
-        heart3 = new GOval(startX + (heartSize + gap) * 2, y, heartSize, heartSize);
-        heart3.setFilled(true);
-        heart3.setColor(Color.RED);
-        add(heart3);
-
-        livesAmount = 3;
+        if (livesAmount >= 2) {
+            heart2 = new GOval(startX + heartSize + gap, y, heartSize, heartSize);
+            heart2.setFilled(true);
+            heart2.setColor(Color.RED);
+            add(heart2);
+        } else {
+            heart2 = null;
+        }
+        if (livesAmount >= 3) {
+            heart3 = new GOval(startX + (heartSize + gap) * 2, y, heartSize, heartSize);
+            heart3.setFilled(true);
+            heart3.setColor(Color.RED);
+            add(heart3);
+        } else {
+            heart3 = null;
+        }
     }
 
     private void handleLifeLoss() {
         livesAmount--;
-
         if (livesAmount == 2) {
-            remove(heart3);
-        } else if (livesAmount == 1) {
-            remove(heart2);
-        } else if (livesAmount <= 0) {
-            remove(heart1);
-            remove(ball);
-            ball = null;
+            if (heart3 != null) remove(heart3);
+        }
+        else if (livesAmount == 1) {
+            if (heart2 != null) remove(heart2);
+        }
+        else if (livesAmount <= 0) {
+
+            if (heart1 != null) remove(heart1);
+
+            if (ball != null) {
+                remove(ball);
+                ball = null;
+            }
             gameEnded = true;
             return;
         }
-        if(ball != null) {
-            ball.setLocation(WINDOW_WIDTH / 2.0 - BALL_DIAMETER/2.0, WINDOW_HEIGHT / 2.0);
-            paddleBox.setLocation(WINDOW_WIDTH/2.0 - paddleBox.getWidth()/2.0, WINDOW_HEIGHT - paddleBox.getHeight());
+        if (ball != null) {
+            ball.setLocation(WINDOW_WIDTH / 2.0 - BALL_DIAMETER / 2.0, WINDOW_HEIGHT / 2.0);
+            paddleBox.setLocation(WINDOW_WIDTH / 2.0 - paddleBox.getWidth() / 2.0, WINDOW_HEIGHT - paddleBox.getHeight());
+
             verticalBallSpeed = Math.abs(verticalBallSpeed);
             horizontalBallSpeed = 0;
+
             pause(1000);
         }
     }
@@ -442,7 +458,7 @@ public class mainGameClass extends GraphicsProgram {
 
     private boolean isBrick(GRect rect) {
         if (rect == null) return false;
-        if (rect == paddleBox || rect == level1Screen) return false;
+        if (rect == paddleBox || rect == level1Screen || rect == level2Screen || rect == level3Screen) return false;
 
         double y = rect.getY();
         double top = (heart1.getY() + heart1.getHeight()) + DISTANCE_TO_FIRST_BRICK;
@@ -452,7 +468,16 @@ public class mainGameClass extends GraphicsProgram {
     }
 
     private void paddle(){
-        paddleBox = new GRect((double) (WINDOW_WIDTH - WINDOW_WIDTH / 10) /2,WINDOW_HEIGHT - (double) WINDOW_HEIGHT /20, (double) WINDOW_WIDTH /10, (double) WINDOW_HEIGHT /20);
+        double width;
+        if (currentLevel == 1) {
+            width = WINDOW_WIDTH / 10.0;
+        } else if (currentLevel == 2){
+            width = WINDOW_WIDTH / 14.0;
+        } else {
+            width = WINDOW_WIDTH / 17.0;
+        }
+
+        paddleBox = new GRect((WINDOW_WIDTH - width) / 2,WINDOW_HEIGHT - (double) WINDOW_HEIGHT /20, (double) WINDOW_WIDTH /10, (double) WINDOW_HEIGHT /20);
         paddleBox.setFilled(true);
         paddleBox.setFillColor(Color.black);
         paddleBox.setColor(Color.white);
@@ -523,7 +548,15 @@ public class mainGameClass extends GraphicsProgram {
     }
 
     private void bonusDistribute(){
-        bonusRandomizer = rnd.nextInt(0, 6); // increased range so bonuses aren't too frequent
+        bonusRandomizer = rnd.nextInt(0, 6);
+        if (currentLevel == 1) {
+            if (bonusRandomizer == 1) return;
+            if (bonusRandomizer == 4) return;
+        } else if (currentLevel == 2) {
+            if (bonusRandomizer == 2 || bonusRandomizer == 3) return;
+        } else {
+            if (bonusRandomizer == 2 || bonusRandomizer == 3 || bonusRandomizer == 5) return;
+        }
 
         if (bonusRandomizer == 1 && speedUpBonus == null) speedUpBonus();
         else if (bonusRandomizer == 2 && slowDownBonus == null) slowDownBonus();
@@ -572,12 +605,17 @@ public class mainGameClass extends GraphicsProgram {
             remove(speedUpBonus);
             speedUpBonus = null;
             verticalBallSpeed *= 1.3;
-            if (verticalBallSpeed > MAX_SPEED) verticalBallSpeed = MAX_SPEED;
+            if (Math.abs(verticalBallSpeed) > MAX_SPEED) {
+                verticalBallSpeed = (verticalBallSpeed < 0) ? -MAX_SPEED : MAX_SPEED;
+            }
         }
         else if (slowDownBonus != null && slowDownBonus.getBounds().intersects(paddleBox.getBounds())) {
             remove(slowDownBonus);
             slowDownBonus = null;
             verticalBallSpeed /= 1.3;
+            if (Math.abs(verticalBallSpeed) < 3.0) {
+                verticalBallSpeed = (verticalBallSpeed < 0) ? -3.0 : 3.0;
+            }
         }
         else if (paddleBigBonus != null && paddleBigBonus.getBounds().intersects(paddleBox.getBounds())) {
             remove(paddleBigBonus);
@@ -625,6 +663,7 @@ public class mainGameClass extends GraphicsProgram {
         }
     }
 
+    private int currentLevel;
     private int score;
     private GLabel scoreLabel;
     RandomGenerator rnd = new RandomGenerator();
